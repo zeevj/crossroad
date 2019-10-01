@@ -35,11 +35,11 @@ const int stepModes = 3;
 void setup() {
 
 
-  steps[0].fromLed = 11;
-  steps[0].toLed = 150;
+  steps[1].fromLed = 11;
+  steps[1].toLed = 150;
 
-  steps[1].fromLed = 160;
-  steps[1].toLed = 220;
+  steps[0].fromLed = 160;
+  steps[0].toLed = 220;
 
   Serial.begin(115200);
   Serial.flush();
@@ -70,14 +70,14 @@ void detectSteps() {
         stepsDetected[i] = false;
       }
     }
-
+//
     Serial.print( scaleResult + i * 20);
     Serial.print( (i != scales.get_count() - 1) ? "\t" : "\n");
   }
 }
 
 void renderLeds() {
-  for (int i = 0; i < scales.get_count(); ++i) {
+  for (int i = 0; i < scales.get_count(); ++i) {    
     if (stepsDetected[i]) {
       CRGB cl;
       int stp = stepsCounter[i] % stepModes;
@@ -94,12 +94,12 @@ void renderLeds() {
           break;
       }
       
-      for (int i = steps[i].fromLed; i < steps[i].toLed; i++) {
-        leds[i] = cl;
+      for (int j = steps[i].fromLed; j < steps[i].toLed; j++) {
+        leds[j] = cl;
       }
     } else {
-      for (int i = steps[i].fromLed; i < steps[i].toLed; i++) {
-        leds[i] = CRGB::Black;
+      for (int j = steps[i].fromLed; j < steps[i].toLed; j++) {
+        leds[j] = CRGB::Black;
       }
     }
   }
