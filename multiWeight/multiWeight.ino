@@ -1,7 +1,5 @@
 //https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
 
-
-
 //================== HX711-multi =============
 #include "HX711-multi.h"
 #define CLK 8      // clock pin to the load cell amp
@@ -10,7 +8,6 @@ byte DOUTS[] = {9,10}; //data from each pressure amplifier
 #define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
 long int results[CHANNEL_COUNT];
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
-
 
 //================== Fast LED =============
 #include <FastLED.h>
@@ -34,9 +31,6 @@ int histeressis = 2000;
 bool stepsDetected[CHANNEL_COUNT];
 bool stepsCounter[CHANNEL_COUNT];
 const int stepModes = 3;
-
-// bool isStepDetected = false;
-// bool previsStepDetected = false;
 
 void setup() {
   steps[0].fromLed = 11;
