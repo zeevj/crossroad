@@ -31,6 +31,35 @@ Step steps[CHANNEL_COUNT];
 
 const int stepModes = 3;
 
+
+void calibrateThresholds(){
+  for(int j=0; j<scales.get_count(); j++) {
+    steps[j].highThreshold = -10000;
+    steps[j].lowThreshold =   10000;
+  }
+
+  const int numberOfSamples = 80 *4;
+  const float extraThresh = 0.4;
+
+  for (int i=0; i < numberOfSamples; i++) {
+    scales.read(results);
+    for(int j=0; j<scales.get_count(); j++) {
+      int scaleResult = -results[j];
+
+      if (steps[j].highThreshold < scaleResult) {
+        steps[j].highThreshold = scaleResult + (scaleResult * extraThresh);
+      }
+
+      if (steps[j].lowThreshold > scaleResult) {
+        steps[j].lowThreshold = scaleResult - (scaleResult * extraThresh);
+      }
+
+    }
+
+    delay(1000/80);
+  }
+}
+
 void setup() {
 
 
@@ -46,6 +75,8 @@ void setup() {
   FastLED.clear();
   FastLED.show();
   tare();
+
+  calibrateThresholds();
 }
 
 void tare() {
