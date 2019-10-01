@@ -18,18 +18,17 @@ CRGB leds[NUM_LEDS];
 struct Step {
   int fromLed;
   int toLed;
+  int highThreshold = 4000;
+  int lowThreshold = -4000;
+  int histeressis = 2000;
+  bool stepDetected;
+  bool stepsCounter;
 };
 
 Step steps[CHANNEL_COUNT];
 
-
 //================== Step Detection =============
-int highThreshold = 4000;
-int lowThreshold = -4000;
-int histeressis = 2000;
 
-bool stepsDetected[CHANNEL_COUNT];
-bool stepsCounter[CHANNEL_COUNT];
 const int stepModes = 3;
 
 void setup() {
@@ -60,14 +59,14 @@ void tare() {
 void detectSteps() {
   for (int i = 0; i < scales.get_count(); ++i) {
     int scaleResult = -results[i];
-    if (!stepsDetected[i]) {
-      if (scaleResult > highThreshold || scaleResult < lowThreshold) {
-        stepsDetected[i] = true;
-        stepsCounter[i]++;
+    if (!steps[i].stepDetected) {
+      if (scaleResult > steps[i].highThreshold || scaleResult < steps[i].lowThreshold) {
+        steps[i].stepDetected = true;
+        steps[i].stepsCounter++;
       }
     } else {
-      if (scaleResult < highThreshold - histeressis && scaleResult > lowThreshold + histeressis ) {
-        stepsDetected[i] = false;
+      if (scaleResult < steps[i].highThreshold - steps[i].histeressis && scaleResult > steps[i].lowThreshold + steps[i].histeressis ) {
+        steps[i].stepDetected = false;
       }
     }
 //
@@ -77,10 +76,10 @@ void detectSteps() {
 }
 
 void renderLeds() {
-  for (int i = 0; i < scales.get_count(); ++i) {    
-    if (stepsDetected[i]) {
+  for (int i = 0; i < scales.get_count(); ++i) {
+    if (steps[i].stepDetected) {
       CRGB cl;
-      int stp = stepsCounter[i] % stepModes;
+      int stp = steps[i].stepsCounter % stepModes;
 
       switch(stp) {
         case 0:
@@ -93,7 +92,7 @@ void renderLeds() {
           cl = CRGB::Blue;
           break;
       }
-      
+
       for (int j = steps[i].fromLed; j < steps[i].toLed; j++) {
         leds[j] = cl;
       }
