@@ -29,17 +29,19 @@ Step steps[CHANNEL_COUNT];
 
 //================== Step Detection =============
 
+const int ledLight = 13;
 const int stepModes = 3;
 
 
 void calibrateThresholds(){
+  
   for(int j=0; j<scales.get_count(); j++) {
     steps[j].highThreshold = -10000;
     steps[j].lowThreshold =   10000;
   }
 
   const int numberOfSamples = 80 *4;
-  const float extraThresh = 0.4;
+  const float extraThresh = 0.2;
 
   for (int i=0; i < numberOfSamples; i++) {
     scales.read(results);
@@ -58,6 +60,7 @@ void calibrateThresholds(){
 
     delay(1000/80);
   }
+  
 }
 
 void setup() {
@@ -69,14 +72,19 @@ void setup() {
   steps[0].fromLed = 160;
   steps[0].toLed = 220;
 
+  
+  pinMode(ledLight, OUTPUT);
+
+
   Serial.begin(115200);
   Serial.flush();
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   FastLED.clear();
   FastLED.show();
+  digitalWrite(ledLight, HIGH);
   tare();
-
   calibrateThresholds();
+  digitalWrite(ledLight, LOW);
 }
 
 void tare() {
