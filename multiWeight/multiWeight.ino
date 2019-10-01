@@ -11,7 +11,7 @@ HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
 
 //================== Fast LED =============
 #include <FastLED.h>
-#define NUM_LEDS 150
+#define NUM_LEDS 150 * 2
 #define DATA_PIN 3
 CRGB leds[NUM_LEDS];
 
@@ -33,6 +33,8 @@ bool stepsCounter[CHANNEL_COUNT];
 const int stepModes = 3;
 
 void setup() {
+
+
   steps[0].fromLed = 11;
   steps[0].toLed = 150;
 
@@ -42,6 +44,8 @@ void setup() {
   Serial.begin(115200);
   Serial.flush();
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.clear();
+  FastLED.show();
   tare();
 }
 
@@ -81,11 +85,13 @@ void renderLeds() {
       switch(stp) {
         case 0:
           cl = CRGB::Red;
+          break;
         case 1:
           cl = CRGB::Green;
+          break;
         case 2:
           cl = CRGB::Blue;
-        break;
+          break;
       }
       
       for (int i = steps[i].fromLed; i < steps[i].toLed; i++) {
