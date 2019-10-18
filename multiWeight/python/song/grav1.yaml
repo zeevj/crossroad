@@ -5,16 +5,16 @@
 
 0:
  button1: grav1.mp3
- step1: e10
- step2: e10
- step3: e10
- step4: e11
- step5: e11
- step6: e11
- step7: e11
+ step1: ef10
+ step2: ef10
+ step3: ef10
+ step4: ef11
+ step5: ef11
+ step6: ef11
+ step7: ef11
 
 1: e1,
-1.1: play
+2.1: play
 2: e2,
 3.5: e3,
 4: stop

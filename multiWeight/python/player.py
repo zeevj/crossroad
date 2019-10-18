@@ -5,18 +5,13 @@ pygame.init()
 pygame.mixer.init(48000, -16, 1, 1024)
 
 
-loc = "/Users/zeevj/Documents/Arduino/multiWeight/multiWeight/python"
-
-
-
-def parse(data):
+def parse(key, data):
     print("--->>>",data)
     if ".wav" in data or ".mp3" in data:
         # pygame.mixer.music.set_endevent("SONG_END")
-        file = loc + "/song/"+data
+        file = "./song/"+data
         print("opening ", file)
         pygame.mixer.music.load(file)
-        # pygame.mixer.music.play()
         # crash_sound = pygame.mixer.Sound(file)
         # pygame.mixer.Sound.play(crash_sound)
     if "play" in data:
@@ -25,6 +20,9 @@ def parse(data):
     if "stop" in data:
         print("found stop")
         pygame.mixer.music.stop()
+    if key is not None and "step" in key:
+        if "ef" in data:
+            print("step",key[4:],"will trigger effect", data[2:], "when pressed")
 
 queue = {}
 timeCounterMs = 0
@@ -43,13 +41,6 @@ with open(loc + "/song/grav1.yaml", 'r') as stream:
         for key in keysToReplace:
             queue[int(key*1000)] = queue.pop(key)
 
-        # print(queue)
-        #         queue.append(tree[key])
-        # exit(0)
-        # for key in tree[0]:
-
-        #     val = tree[0][key]
-
 
                 
                 # print(val)
@@ -64,9 +55,9 @@ while timeCounterMs < 10 * 1000:
         if isinstance(timeKey,dict):
             for key in timeKey:
                 # print(timeKey.keys())
-                parse(timeKey[key])
+                parse(key, timeKey[key])
         else:
-            parse(timeKey)
+            parse(None, timeKey)
     timeCounterMs = int(timeCounterMs + tickMs)
     sleep(tickMs / 1000.0) 
     
