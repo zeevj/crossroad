@@ -11,6 +11,8 @@ long int results[CHANNEL_COUNT];
 #define NUM_LEDS 150
 #define DATA_PIN 5
 
+#define RUN_FOR_N_MILLISECONDS(N) for (uint32_t start = millis(); (millis() - start) < N;)
+
 CRGB leds[NUM_LEDS];
 
 Step steps[CHANNEL_COUNT];
@@ -143,7 +145,7 @@ void Task1code(void *pvParameters)
   FastLED.clear();
   FastLED.show();
   int counter = 0;
-  int a[] = {0,1};
+  int a[] = {0, 1};
   for (;;)
   {
 
@@ -163,11 +165,21 @@ void Task1code(void *pvParameters)
     }
     */
 
-   e.lightBoardEscelate(CRGB::Red,200,5);
-   e.lightBoardDescelate(CRGB::Blue,200,5);
-   e.bpm(62);
-   FastLED.delay(3000);
-   
+    RUN_FOR_N_MILLISECONDS(3000)
+    {
+      e.lightBoardEscelate(CRGB::Red, 200);
+    }
+
+    RUN_FOR_N_MILLISECONDS(3000)
+    {
+      e.lightBoardDescelate(CRGB::Blue, 200);
+    }
+    RUN_FOR_N_MILLISECONDS(3000)
+    {
+      e.bpm(62);
+      FastLED.clear(true);
+      FastLED.show();
+    }
   }
 }
 

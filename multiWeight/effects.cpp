@@ -48,38 +48,33 @@ public:
         FastLED.delay(duration);
     }
 
-    void lightBoardEscelate(CRGB color, int duration, int times)
+    void lightBoardEscelate(CRGB color, int duration)
     {
-        for (int round = 0; round < times; round++)
+        int cnt = 0;
+        uint8_t step = 1 << cnt;
+        for (int i = 0; i < STEP_NUM; i++)
         {
-            int cnt = 0;
-            uint8_t step = 1 << cnt;
-            for (int i = 0; i < STEP_NUM; i++)
-            {
-                lightBoard(step, color, duration);
-                cnt = (cnt + 1) % 7;
-                step = 1 << cnt;
-            }
+            lightBoard(step, color, duration);
+            cnt = (cnt + 1) % 7;
+            step = 1 << cnt;
         }
     }
 
-    void lightBoardDescelate(CRGB color, int duration, int times)
+    void lightBoardDescelate(CRGB color, int duration)
     {
-        for (int round = 0; round < times; round++)
+        int cnt = STEP_NUM - 1;
+        uint8_t step = 1 << cnt;
+        for (int i = 0; i < STEP_NUM; i++)
         {
-            int cnt = STEP_NUM - 1;
-            uint8_t step = 1 << cnt;
-            for (int i = 0; i < STEP_NUM; i++)
-            {
-                lightBoard(step, color, duration);
-                cnt = (cnt - 1) % 7;
-                step = 1 << cnt;
-            }
+            lightBoard(step, color, duration);
+            cnt = (cnt - 1) % 7;
+            step = 1 << cnt;
         }
     }
 
     void bpm(uint8_t BeatsPerMinute)
     {
+        FastLED.clear();
         uint32_t delay = (1000 / FRAMES_PER_SECOND);
         // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
         CRGBPalette16 palette = PartyColors_p;
