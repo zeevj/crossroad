@@ -162,7 +162,11 @@ void Task1code(void *pvParameters)
       FastLED.show();
     }
     */
-   e.lightBoardDescelate(CRGB::Red,200,10);
+
+   e.lightBoardEscelate(CRGB::Red,200,5);
+   e.lightBoardDescelate(CRGB::Blue,200,5);
+   e.bpm(62);
+   FastLED.delay(3000);
    
   }
 }
