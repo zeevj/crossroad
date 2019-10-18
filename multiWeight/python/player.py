@@ -19,6 +19,12 @@ def parse(key, data):
     elif key is not None and "step" in key:
         if "ef" in data:
             print("step",key[4:],"will trigger effect", data[2:], "when pressed")
+        if ".wav" in data or ".mp3" in data:
+            file = "./songs/"+data
+            sounds[int(key[4:])] = pygame.mixer.Sound(file)
+        if "nosound" in data:
+            pygame.mixer.Sound.stop(sounds[int(key[4:])])
+            sounds[int(key[4:])] = pygame.mixer.Sound
     elif "ef" in data:
         print("run effect", data[2:])
     elif ".wav" in data or ".mp3" in data:
