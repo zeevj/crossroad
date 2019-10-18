@@ -165,20 +165,13 @@ void Task1code(void *pvParameters)
     }
     */
 
-    RUN_FOR_N_MILLISECONDS(3000)
+    RUN_FOR_N_MILLISECONDS(5000)
     {
-      e.lightBoardEscelate(CRGB::Red, 200);
+      e.lightsBeat(CRGB::Red, 2);
     }
-
-    RUN_FOR_N_MILLISECONDS(3000)
+    RUN_FOR_N_MILLISECONDS(5000)
     {
-      e.lightBoardDescelate(CRGB::Blue, 200);
-    }
-    RUN_FOR_N_MILLISECONDS(3000)
-    {
-      e.bpm(62);
-      FastLED.clear(true);
-      FastLED.show();
+      e.bpm(85);
     }
   }
 }

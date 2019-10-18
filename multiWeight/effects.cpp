@@ -3,6 +3,11 @@
 #define TOTAL_NUM_LEDS 150
 #define STEP_NUM 7
 #define FRAMES_PER_SECOND 120
+#define MAX_BRIGHTNESS 255
+#define MIN_BRIGHTNESS 0
+#define CLEAR()          \
+    FastLED.clear(true); \
+    FastLED.show();
 
 struct Step
 {
@@ -21,7 +26,13 @@ private:
     //pointer to leds array from main
     CRGB *leds;
     Step *steps;
+
     uint8_t gHue = 0;
+    fract8 chanceOfGlitter = 255;
+    uint32_t delay = (1000 / FRAMES_PER_SECOND);
+
+    int curr_steps = 0;
+    int step_incr = 8;
 
 public:
     Effects(CRGB *_leds)
@@ -32,6 +43,29 @@ public:
     void setSteps(Step *_steps)
     {
         steps = _steps;
+    }
+
+    void lightsBeat(CRGB color, int bpm)
+    {
+        for (int i = 0; i < TOTAL_NUM_LEDS; i++)
+        {
+            leds[i] = color;
+        }
+        FastLED.setBrightness(curr_steps);
+        FastLED.show();
+        FastLED.delay(bpm);
+        curr_steps += step_incr;
+
+        if (curr_steps > MAX_BRIGHTNESS)
+        {
+            curr_steps = MAX_BRIGHTNESS;
+            step_incr *= -1;
+        }
+        else if (curr_steps < MIN_BRIGHTNESS)
+        {
+            curr_steps = MIN_BRIGHTNESS;
+            step_incr *= -1;
+        }
     }
 
     void lightBoard(uint8_t data, CRGB color, int duration)
@@ -72,10 +106,19 @@ public:
         }
     }
 
+    void showLeds()
+    {
+        FastLED.setBrightness(MAX_BRIGHTNESS);
+        // send the 'leds' array out to the actual LED strip
+        FastLED.show();
+        // insert a delay to keep the framerate modest
+        FastLED.delay(delay);
+        FastLED.clear(true);
+        FastLED.show();
+    }
+
     void bpm(uint8_t BeatsPerMinute)
     {
-        FastLED.clear();
-        uint32_t delay = (1000 / FRAMES_PER_SECOND);
         // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
         CRGBPalette16 palette = PartyColors_p;
         uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
@@ -85,10 +128,56 @@ public:
         {
             leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
         }
+        showLeds();
+    }
 
-        // send the 'leds' array out to the actual LED strip
-        FastLED.show();
-        // insert a delay to keep the framerate modest
-        FastLED.delay(delay);
+    void glitter()
+    {
+        CLEAR()
+        if (random8() < chanceOfGlitter)
+        {
+            for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
+            {
+                leds[random16(TOTAL_NUM_LEDS)] += CRGB::White;
+            }
+        }
+        showLeds();
+    }
+
+    void confetti()
+    {
+        // random colored speckles that blink in and fade smoothly
+        fadeToBlackBy(leds, TOTAL_NUM_LEDS, 10);
+        for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
+        {
+            int pos = random16(TOTAL_NUM_LEDS);
+            leds[pos] += CHSV(gHue + random8(64 * i), 200, 255);
+        }
+        showLeds();
+    }
+
+    void juggle()
+    {
+        // eight colored dots, weaving in and out of sync with each other
+        fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
+        byte dothue = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            leds[beatsin16(i + 7, 0, TOTAL_NUM_LEDS - 1)] |= CHSV(dothue, 200, 255);
+            dothue += 32;
+        }
+        showLeds();
+    }
+
+    void sinelon(int bpm)
+    {
+        for (int i = 0; i < STEP_NUM; i++)
+        {
+            // a colored dot sweeping back and forth, with fading trails
+            fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
+            int pos = beatsin16(bpm, steps[i].fromLed, steps[i].toLed);
+            leds[pos] += CHSV(gHue, 255, 192);
+        }
+        showLeds();
     }
 };
