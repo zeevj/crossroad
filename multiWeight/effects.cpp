@@ -82,6 +82,19 @@ public:
         FastLED.delay(duration);
     }
 
+    bool lightBoard(uint8_t data, CRGB color)
+    {
+        for (int i = 0; i < STEP_NUM; i++)
+        {
+            bool isLightStep = bitRead(data, i);
+            for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
+            {
+                leds[led] = (isLightStep ? color : CRGB::Black);
+            }
+        }
+    }
+
+
     void lightBoardEscelate(CRGB color, int duration)
     {
         int cnt = 0;
@@ -93,6 +106,19 @@ public:
             step = 1 << cnt;
         }
     }
+
+    void lightBoardEscelate(CRGB color, int duration, int loopTimeMs, int timeStampMs)
+    {
+        float numFromZeroToOne = float(timeStampMs % loopTimeMs) / float(loopTimeMs);
+        int stepToLight = int(numFromZeroToOne * STEP_NUM);
+        uint8_t step = 0;
+
+        for (int i = 0; i < STEP_NUM; i++) {
+            bitWrite(step, i, i <= stepToLight);
+        }
+        lightBoard(step, color);
+    }
+
 
     void lightBoardDescelate(CRGB color, int duration)
     {
