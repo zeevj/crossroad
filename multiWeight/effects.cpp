@@ -107,9 +107,9 @@ public:
         }
     }
 
-    void lightBoardEscelate(CRGB color, int duration, int loopTimeMs, int timeStampMs)
+    void lightBoardEscelate(CRGB color, unsigned long durationMs, unsigned long startTimeMs, unsigned long timeStampMs)
     {
-        float numFromZeroToOne = float(timeStampMs % loopTimeMs) / float(loopTimeMs);
+        float numFromZeroToOne = float(timeStampMs - startTimeMs) / float(durationMs);
         int stepToLight = int(numFromZeroToOne * STEP_NUM);
         uint8_t step = 0;
 
