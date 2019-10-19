@@ -181,8 +181,9 @@ public:
         showLeds();
     }
 
-    void runOnLeds(int numOfLeds, int loopTimeMs, int timestempMs) {
-        int currentLed = int(numOfLeds * ((timestempMs % loopTimeMs) / loopTimeMs));
+    void runOnLeds(int numOfLeds, int loopTimeMs, int timeStampMs) {
+        float numFromZeroToOne = float(timeStampMs % loopTimeMs) / float(loopTimeMs);
+        int currentLed = int(numOfLeds * numFromZeroToOne);
         for (int i = 0; i < numOfLeds; i++)
         {
             leds[pos] = (currentLed == i ? CRGB::Red : CRGB::Black);
