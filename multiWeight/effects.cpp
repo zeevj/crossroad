@@ -180,4 +180,12 @@ public:
         }
         showLeds();
     }
+
+    void runOnLeds(int numOfLeds, int loopTimeMs, int timestempMs) {
+        int currentLed = int(numOfLeds * ((timestempMs % loopTimeMs) / loopTimeMs));
+        for (int i = 0; i < numOfLeds; i++)
+        {
+            leds[pos] = (currentLed == i ? CRGB::Red : CRGB::Black);
+        }
+    }
 };
