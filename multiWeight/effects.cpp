@@ -107,7 +107,7 @@ public:
         }
     }
 
-    void lightBoardEscelate(CRGB color, unsigned long durationMs, unsigned long startTimeMs, unsigned long timeStampMs)
+    bool lightBoardEscelate(CRGB color, unsigned long durationMs, unsigned long startTimeMs, unsigned long timeStampMs)
     {
         float numFromZeroToOne = float(timeStampMs - startTimeMs) / float(durationMs);
         int stepToLight = int(numFromZeroToOne * STEP_NUM);
@@ -117,6 +117,7 @@ public:
             bitWrite(step, i, i <= stepToLight);
         }
         lightBoard(step, color);
+        return (numFromZeroToOne >= 1);
     }
 
 
