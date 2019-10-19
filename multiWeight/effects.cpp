@@ -1,4 +1,5 @@
 #include <FastLED.h>
+#include "parameters.cpp"
 
 #define TOTAL_NUM_LEDS 150
 #define STEP_NUM 7
@@ -33,6 +34,9 @@ private:
 
     int curr_steps = 0;
     int step_incr = 8;
+    unsigned long startTime = millis();
+    int stepCountUp = 0;
+    int stepCountDown = STEP_NUM - 1;
 
 public:
     Effects(CRGB *_leds)
@@ -45,16 +49,19 @@ public:
         steps = _steps;
     }
 
-    void lightsBeat(CRGB color, int bpm)
+    void lightsBeat(Parameters params)
     {
+        float numFromZeroToOne = float(params.getCurrentTime() - params.getStartTime()) / float(params.getInterval());
         for (int i = 0; i < TOTAL_NUM_LEDS; i++)
         {
-            leds[i] = color;
+            leds[i] = params.getColor();
         }
         FastLED.setBrightness(curr_steps);
-        FastLED.show();
-        FastLED.delay(bpm);
-        curr_steps += step_incr;
+        if (numFromZeroToOne >= 1)
+        {
+            curr_steps += step_incr;
+            params.setStartTime(params.getCurrentTime());
+        }
 
         if (curr_steps > MAX_BRIGHTNESS)
         {
@@ -68,21 +75,7 @@ public:
         }
     }
 
-    void lightBoard(uint8_t data, CRGB color, int duration)
-    {
-        for (int i = 0; i < STEP_NUM; i++)
-        {
-            bool isLightStep = bitRead(data, i);
-            for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
-            {
-                leds[led] = (isLightStep ? color : CRGB::Black);
-            }
-        }
-        FastLED.show();
-        FastLED.delay(duration);
-    }
-
-    bool lightBoard(uint8_t data, CRGB color)
+    void lightBoard(uint8_t data, CRGB color)
     {
         for (int i = 0; i < STEP_NUM; i++)
         {
@@ -94,42 +87,31 @@ public:
         }
     }
 
-
-    void lightBoardEscelate(CRGB color, int duration)
+    bool lightBoardEscelate(CRGB color, unsigned long interval, unsigned long currentTime)
     {
-        int cnt = 0;
-        uint8_t step = 1 << cnt;
-        for (int i = 0; i < STEP_NUM; i++)
+        float numFromZeroToOne = float(currentTime - startTime) / float(interval);
+        uint8_t step = 1 << stepCountUp;
+        if (numFromZeroToOne >= 1)
         {
-            lightBoard(step, color, duration);
-            cnt = (cnt + 1) % 7;
-            step = 1 << cnt;
-        }
-    }
-
-    bool lightBoardEscelate(CRGB color, unsigned long durationMs, unsigned long startTimeMs, unsigned long timeStampMs)
-    {
-        float numFromZeroToOne = float(timeStampMs - startTimeMs) / float(durationMs);
-        int stepToLight = int(numFromZeroToOne * STEP_NUM);
-        uint8_t step = 0;
-
-        for (int i = 0; i < STEP_NUM; i++) {
-            bitWrite(step, i, i <= stepToLight);
+            stepCountUp = (stepCountUp + 1) % 7;
+            step = 1 << stepCountUp;
+            startTime = currentTime;
         }
         lightBoard(step, color);
-        return (numFromZeroToOne >= 1);
     }
 
-
-    void lightBoardDescelate(CRGB color, int duration)
+    bool lightBoardDescelate(CRGB color, unsigned long interval, unsigned long currentTime)
     {
-        int cnt = STEP_NUM - 1;
-        uint8_t step = 1 << cnt;
-        for (int i = 0; i < STEP_NUM; i++)
+        float numFromZeroToOne = float(currentTime - startTime) / float(interval);
+        if (numFromZeroToOne >= 1)
         {
-            lightBoard(step, color, duration);
-            cnt = (cnt - 1) % 7;
-            step = 1 << cnt;
+            stepCountDown = (stepCountDown - 1) % 7;
+            uint8_t step = 1 << stepCountDown;
+            if (stepCountDown == 0){
+                stepCountDown = 7;
+            }
+            startTime = currentTime;
+            lightBoard(step, color);
         }
     }
 
@@ -208,12 +190,13 @@ public:
         showLeds();
     }
 
-    void runOnLeds(int numOfLeds, int loopTimeMs, int timeStampMs) {
+    void runOnLeds(int numOfLeds, int loopTimeMs, int timeStampMs)
+    {
         float numFromZeroToOne = float(timeStampMs % loopTimeMs) / float(loopTimeMs);
         int currentLed = int(numOfLeds * numFromZeroToOne);
         for (int i = 0; i < numOfLeds; i++)
         {
-            leds[pos] = (currentLed == i ? CRGB::Red : CRGB::Black);
+            leds[i] = (currentLed == i ? CRGB::Red : CRGB::Black);
         }
     }
 };

@@ -164,15 +164,22 @@ void Task1code(void *pvParameters)
       FastLED.show();
     }
     */
+    
+    if (Serial.available())
+    {
+      char inByte = ' ';
+      inByte = Serial.read(); // read the incoming data
+      Serial.println(inByte);
+      if (inByte == '1')
+      {
+        Parameters p = Parameters();
+        p.setInterval(100);
+        e.lightsBeat(p); //FIXME
+      }
+    }
 
-    RUN_FOR_N_MILLISECONDS(5000)
-    {
-      e.lightsBeat(CRGB::Red, 2);
-    }
-    RUN_FOR_N_MILLISECONDS(5000)
-    {
-      e.bpm(85);
-    }
+    FastLED.delay(10);
+    FastLED.show();
   }
 }
 
