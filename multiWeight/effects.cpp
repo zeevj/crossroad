@@ -18,6 +18,18 @@ struct Step
     bool stepsCounter;
 };
 
+enum Effect
+{
+    idle,
+    e1,
+    e2,
+    e3,
+    e4,
+    e5,
+    e6,
+    e7
+};
+
 class Effects
 {
 private:
@@ -34,18 +46,49 @@ private:
     unsigned long startTime = millis();
     int stepCountUp = 0;
     int stepCountDown = STEP_NUM - 1;
-    
+
+    Effect currentEffect = idle;
 
 public:
     Effects(CRGB *_leds)
     {
         leds = _leds;
-        EVERY_N_MILLISECONDS(20) { gHue++; } //FIXME - leave as is ? 
+        EVERY_N_MILLISECONDS(20) { gHue++; } //FIXME - leave as is ?
     }
 
     void setSteps(Step *_steps)
     {
         steps = _steps;
+    }
+
+    void runEffect(Effect e, Parameters *params)
+    {
+        switch (e)
+        {
+        case e1:
+            lightBoardEscelate(params);
+            break;
+        case e2:
+            lightBoardDescelate(params);
+            break;
+        case e3:
+            bpm(params);
+            break;
+        case e4:
+            glitter(params);
+            break;
+        case e5:
+            confetti(params);
+            break;
+        case e6:
+            juggle(params);
+            break;
+        case e7:
+            sinelon(params);
+            break;
+        default:
+            lightsBeat(params);
+        }
     }
 
     void lightsBeat(Parameters *params)
