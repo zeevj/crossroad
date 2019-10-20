@@ -20,19 +20,54 @@ class Led:
 NUM_OF_LEDS = 10
 leds = [Led] * NUM_OF_LEDS
 needToWrite = True
+global_serial = None
 
 for index, led in enumerate(leds):
     leds[index] = Led()
 
 def exit_handler():
+    global global_serial
     print('######\nMy application is ending!, closing serial connection\n######' )
-    ser.close()
+    if global_serial != None:
+        global_serial.close()
 
 def handle_data(data):
     if (len(data) > 0):
-        print(data)
-        needToWrite = True
+        data_tokens = [x.strip() for x in data.split(',')]
+        if len(data_tokens) > 1:
+            if "step" in data_tokens[0]:
+                print("st",data_tokens[1],"is",data_tokens[2])
+                print("TODO: implement logics")
+            if "button" in data_tokens[0]:
+                print("bt",data_tokens[1],"is",data_tokens[2])
+                print("TODO: implement logics")
+               
+#         print(data)
+        #needToWrite = True
+        
+def write_data(write_data):
+    # needToWrite = False
+    print("write")
+    for index, led in enumerate(leds):
+        isCounter = index == counter
+        color = 127 if isCounter else 0
+        leds[index].r = color
+        leds[index].g = color
+        leds[index].b = color
 
+    arr = []
+    for led in leds:
+        for color in led.getColorArray():
+            arr.append(color)
+    values = bytearray(arr)
+
+    ser.write(START_LEDS)
+    ser.write(values)
+    ser.write(END_LEDS)
+    # ser.write(str(counter).encode())
+
+    counter = (counter + 1) % NUM_OF_LEDS
+    
 def read_from_port(ser):
     global needToWrite
     connected = False
@@ -53,27 +88,7 @@ def read_from_port(ser):
             reading = ser.readline().decode('utf8','ignore')
             handle_data(reading)
             if needToWrite:
-                # needToWrite = False
-                print("write")
-                for index, led in enumerate(leds):
-                    isCounter = index == counter
-                    color = 127 if isCounter else 0
-                    leds[index].r = color
-                    leds[index].g = color
-                    leds[index].b = color
-
-                arr = []
-                for led in leds:
-                    for color in led.getColorArray():
-                        arr.append(color)
-                values = bytearray(arr)
-
-                ser.write(START_LEDS)
-                ser.write(values)
-                ser.write(END_LEDS)
-                # ser.write(str(counter).encode())
-                
-                counter = (counter + 1) % NUM_OF_LEDS
+                write_data(reading)
 
             sleep(.1 / 10.0)  # Delay for one tenth of a second
 
@@ -94,22 +109,27 @@ def waitForSerial(name):
                 n = 600
                 print("found device\n")
                 return ser
+def wait_for_port(port = None):
+    port = ""
+    if platform == "linux" or platform == "linux2":
+        # linux
+        port = "/dev/ttyACM"
+    elif platform == "darwin":
+        # OS X
+        port = "USBtoUART"
+    elif platform == "win32":
+        # Windows...
+        pass
 
-port = ""
-if platform == "linux" or platform == "linux2":
-    # linux
-    port = "/dev/ttyACM0"
-elif platform == "darwin":
-    # OS X
-    port = "USBtoUART"
-elif platform == "win32":
-    # Windows...
-    pass
-
-ser = waitForSerial(port)
-
-# thread = threading.Thread(target=read_from_port, args=(ser,))
-# thread.start()
-read_from_port(ser)
-
-atexit.register(exit_handler)
+    ser = waitForSerial(port)
+    return ser
+    # thread = threading.Thread(target=read_from_port, args=(ser,))
+    # thread.start()
+    
+def main():
+    global global_serial
+    global_serial = wait_for_port()
+    atexit.register(exit_handler)
+    read_from_port(global_serial)
+if __name__== "__main__":
+      main()
