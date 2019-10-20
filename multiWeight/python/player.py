@@ -3,6 +3,9 @@ import yaml
 from time import sleep
 import glob
 
+import test_serial
+ser = test_serial.global_serial
+
 sounds = [pygame.mixer.Sound] * 8
 
 def parse(key, data):
@@ -27,6 +30,16 @@ def parse(key, data):
             sounds[int(key[4:])] = pygame.mixer.Sound
     elif "ef" in data:
         print("run effect", data[2:])
+        effect_number = data[2:]
+        turn_on = 1
+        time = 100
+        red = 255
+        green = 0
+        blue = 0
+        #ef,effect_number,turn_on,time,reg,green,blue
+        #ef,5,1,100,255,0,0
+        cmd = "ef," + effect_number + "," + turn_on + "," + time + "," + red + "," + green + "," + blue
+        ser.write(cmd.encode())
     elif ".wav" in data or ".mp3" in data:
         file = "./songs/"+data
         print("opening ", file)
@@ -35,6 +48,11 @@ def parse(key, data):
         pygame.mixer.music.play()
         pygame.mixer.music.stop()
 
+def init_serial():
+    global_serial = test_serial.wait_for_port()
+    test_serial.atexit.register(test_serial.exit_handler)
+    test_serial.read_from_port(test_serial.global_serial)
+        
 def main():
     pygame.init()
     pygame.mixer.init(48000, -16, 1, 1024)
