@@ -3,8 +3,8 @@ import yaml
 from time import sleep
 import glob
 
-import test_serial
-ser = test_serial.global_serial
+import test_serial as myserial
+ser = myserial.global_serial
 
 sounds = [pygame.mixer.Sound] * 8
 
@@ -49,9 +49,9 @@ def parse(key, data):
         pygame.mixer.music.stop()
 
 def init_serial():
-    global_serial = test_serial.wait_for_port()
-    test_serial.atexit.register(test_serial.exit_handler)
-    test_serial.read_from_port(test_serial.global_serial)
+    global_serial = myserial.wait_for_port()
+    myserial.atexit.register(myserial.exit_handler)
+    myserial.read_from_port(myserial.global_serial)
         
 def main():
     pygame.init()
