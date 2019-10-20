@@ -18,18 +18,6 @@ struct Step
     bool stepsCounter;
 };
 
-enum Effect
-{
-    idle,
-    e1,
-    e2,
-    e3,
-    e4,
-    e5,
-    e6,
-    e7
-};
-
 class Effects
 {
 private:
@@ -57,33 +45,33 @@ public:
         steps = _steps;
     }
 
-    void runEffect(Effect e, Parameters *params)
+    void runEffect(int e, Parameters *params)
     {
-        if (e != idle){
+        if (e > 0){
             FastLED.setBrightness(MAX_BRIGHTNESS);
         }
 
         switch (e)
         {
-        case e1:
+        case 1:
             lightBoardEscelate(params);
             break;
-        case e2:
+        case 2:
             lightBoardDescelate(params);
             break;
-        case e3:
+        case 3:
             bpm(params);
             break;
-        case e4:
+        case 4:
             glitter(params);
             break;
-        case e5:
+        case 5:
             confetti(params);
             break;
-        case e6:
+        case 6:
             juggle(params);
             break;
-        case e7:
+        case 7:
             sinelon(params);
             break;
         default:
