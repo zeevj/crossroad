@@ -38,7 +38,7 @@ def parse(key, data):
         blue = 0
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
-        cmd = "ef," + effect_number + "," + turn_on + "," + time + "," + red + "," + green + "," + blue + "\n"
+        cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
         ser.write(cmd.encode())
     elif ".wav" in data or ".mp3" in data:
         file = "./songs/"+data
