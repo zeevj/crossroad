@@ -26,7 +26,7 @@ TaskHandle_t Task2;
 TaskHandle_t Task3;
 
 Effects e = Effects(leds);
-    Parameters p = Parameters();
+Parameters p = Parameters(); //FIXME
     
 
 void tare(HX711MULTI *scales)
@@ -151,7 +151,7 @@ void Task1code(void *pvParameters)
 
 p.setInterval(100);
 p.setColor(CRGB::Red);
-
+  
   const int FPS = 30;
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
   unsigned long currentFrameTimeMs = 0;
@@ -185,7 +185,7 @@ p.setColor(CRGB::Red);
       }
     } */
 
-    e.lightBoardEscelate(&p);
+    e.sinelon(&p);
 
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))

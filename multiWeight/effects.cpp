@@ -6,9 +6,6 @@
 #define FRAMES_PER_SECOND 120
 #define MAX_BRIGHTNESS 255
 #define MIN_BRIGHTNESS 0
-#define CLEAR()          \
-    FastLED.clear(true); \
-    FastLED.show();
 
 struct Step
 {
@@ -42,6 +39,7 @@ public:
     Effects(CRGB *_leds)
     {
         leds = _leds;
+        EVERY_N_MILLISECONDS(20) { gHue++; } //FIXME - leave as is ? 
     }
 
     void setSteps(Step *_steps)
@@ -73,7 +71,7 @@ public:
             curr_steps = MIN_BRIGHTNESS;
             step_incr *= -1;
         }
-        params->setCurrentTime(millis()); 
+        params->setCurrentTime(millis());
     }
 
     void lightBoard(uint8_t data, CRGB color)
@@ -102,49 +100,41 @@ public:
         params->setCurrentTime(millis());
     }
 
-    bool lightBoardDescelate(CRGB color, unsigned long interval, unsigned long currentTime)
+    bool lightBoardDescelate(Parameters *params)
     {
-        float numFromZeroToOne = float(currentTime - startTime) / float(interval);
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         if (numFromZeroToOne >= 1)
         {
             stepCountDown = (stepCountDown - 1) % 7;
             uint8_t step = 1 << stepCountDown;
-            if (stepCountDown == 0){
+            if (stepCountDown == 0)
+            {
                 stepCountDown = 7;
             }
-            startTime = currentTime;
-            lightBoard(step, color);
+            params->setStartTime(params->getCurrentTime());
+            lightBoard(step, params->getColor());
         }
+        params->setCurrentTime(millis());
     }
 
-    void showLeds()
-    {
-        FastLED.setBrightness(MAX_BRIGHTNESS);
-        // send the 'leds' array out to the actual LED strip
-        FastLED.show();
-        // insert a delay to keep the framerate modest
-        FastLED.delay(delay);
-        FastLED.clear(true);
-        FastLED.show();
-    }
-
-    void bpm(uint8_t BeatsPerMinute)
+    void bpm(Parameters *params)
     {
         // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
         CRGBPalette16 palette = PartyColors_p;
-        uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
+        uint8_t beat = beatsin8(params->getInterval(), 64, 255);
 
-        EVERY_N_MILLISECONDS(20) { gHue++; }
         for (int i = 0; i < TOTAL_NUM_LEDS; i++)
         {
             leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
         }
-        showLeds();
     }
 
-    void glitter()
+    void glitter(Parameters *params)
     {
-        CLEAR()
+        for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
+        {
+            leds[i] = CRGB::Black;
+        }
         if (random8() < chanceOfGlitter)
         {
             for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
@@ -152,10 +142,9 @@ public:
                 leds[random16(TOTAL_NUM_LEDS)] += CRGB::White;
             }
         }
-        showLeds();
     }
 
-    void confetti()
+    void confetti(Parameters *params)
     {
         // random colored speckles that blink in and fade smoothly
         fadeToBlackBy(leds, TOTAL_NUM_LEDS, 10);
@@ -164,10 +153,9 @@ public:
             int pos = random16(TOTAL_NUM_LEDS);
             leds[pos] += CHSV(gHue + random8(64 * i), 200, 255);
         }
-        showLeds();
     }
 
-    void juggle()
+    void juggle(Parameters *params)
     {
         // eight colored dots, weaving in and out of sync with each other
         fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
@@ -177,28 +165,16 @@ public:
             leds[beatsin16(i + 7, 0, TOTAL_NUM_LEDS - 1)] |= CHSV(dothue, 200, 255);
             dothue += 32;
         }
-        showLeds();
     }
 
-    void sinelon(int bpm)
+    void sinelon(Parameters *params)
     {
         for (int i = 0; i < STEP_NUM; i++)
         {
             // a colored dot sweeping back and forth, with fading trails
             fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
-            int pos = beatsin16(bpm, steps[i].fromLed, steps[i].toLed);
+            int pos = beatsin16(params->getInterval(), steps[i].fromLed, steps[i].toLed);
             leds[pos] += CHSV(gHue, 255, 192);
-        }
-        showLeds();
-    }
-
-    void runOnLeds(int numOfLeds, int loopTimeMs, int timeStampMs)
-    {
-        float numFromZeroToOne = float(timeStampMs % loopTimeMs) / float(loopTimeMs);
-        int currentLed = int(numOfLeds * numFromZeroToOne);
-        for (int i = 0; i < numOfLeds; i++)
-        {
-            leds[i] = (currentLed == i ? CRGB::Red : CRGB::Black);
         }
     }
 };
