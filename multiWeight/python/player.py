@@ -4,7 +4,6 @@ from time import sleep
 import glob
 
 import test_serial as myserial
-ser = myserial.global_serial
 
 sounds = [pygame.mixer.Sound] * 8
 
@@ -39,7 +38,7 @@ def parse(key, data):
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
         cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
-        ser.write(cmd.encode())
+        myserial.global_serial.write(cmd.encode())
     elif ".wav" in data or ".mp3" in data:
         file = "./songs/"+data
         print("opening ", file)
@@ -49,7 +48,7 @@ def parse(key, data):
         pygame.mixer.music.stop()
 
 def init_serial():
-    global_serial = myserial.wait_for_port()
+    myserial.global_serial = myserial.wait_for_port()
     myserial.atexit.register(myserial.exit_handler)
     myserial.read_from_port(myserial.global_serial)
         
