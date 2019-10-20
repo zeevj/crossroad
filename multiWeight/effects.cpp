@@ -49,18 +49,18 @@ public:
         steps = _steps;
     }
 
-    void lightsBeat(Parameters params)
+    void lightsBeat(Parameters *params)
     {
-        float numFromZeroToOne = float(params.getCurrentTime() - params.getStartTime()) / float(params.getInterval());
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         for (int i = 0; i < TOTAL_NUM_LEDS; i++)
         {
-            leds[i] = params.getColor();
+            leds[i] = params->getColor();
         }
         FastLED.setBrightness(curr_steps);
         if (numFromZeroToOne >= 1)
         {
             curr_steps += step_incr;
-            params.setStartTime(params.getCurrentTime());
+            params->setStartTime(params->getCurrentTime());
         }
 
         if (curr_steps > MAX_BRIGHTNESS)
@@ -73,6 +73,7 @@ public:
             curr_steps = MIN_BRIGHTNESS;
             step_incr *= -1;
         }
+        params->setCurrentTime(millis()); 
     }
 
     void lightBoard(uint8_t data, CRGB color)
@@ -87,17 +88,18 @@ public:
         }
     }
 
-    bool lightBoardEscelate(CRGB color, unsigned long interval, unsigned long currentTime)
+    bool lightBoardEscelate(Parameters *params)
     {
-        float numFromZeroToOne = float(currentTime - startTime) / float(interval);
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         uint8_t step = 1 << stepCountUp;
         if (numFromZeroToOne >= 1)
         {
             stepCountUp = (stepCountUp + 1) % 7;
             step = 1 << stepCountUp;
-            startTime = currentTime;
+            params->setStartTime(params->getCurrentTime());
         }
-        lightBoard(step, color);
+        lightBoard(step, params->getColor());
+        params->setCurrentTime(millis());
     }
 
     bool lightBoardDescelate(CRGB color, unsigned long interval, unsigned long currentTime)

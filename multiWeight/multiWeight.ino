@@ -26,6 +26,8 @@ TaskHandle_t Task2;
 TaskHandle_t Task3;
 
 Effects e = Effects(leds);
+    Parameters p = Parameters();
+    
 
 void tare(HX711MULTI *scales)
 {
@@ -147,6 +149,9 @@ void Task1code(void *pvParameters)
   int counter = 0;
   int a[] = {0, 1};
 
+p.setInterval(100);
+p.setColor(CRGB::Red);
+
   const int FPS = 30;
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
   unsigned long currentFrameTimeMs = 0;
@@ -169,21 +174,22 @@ void Task1code(void *pvParameters)
       FastLED.show();
     }
     */
-    
-    if (Serial.available())
+
+  /*  if (Serial.available())
     {
       char inByte = ' ';
       inByte = Serial.read(); // read the incoming data
       Serial.println(inByte);
       if (inByte == '1')
       {
-        Parameters p = Parameters();
-        p.setInterval(100);
-        e.lightsBeat(p); //FIXME
       }
-    }
+    } */
 
-    if (millis() > (currentFrameTimeMs + frameTimeIntervalMs) ) {
+    e.lightBoardEscelate(&p);
+
+
+    if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
+    {
       currentFrameTimeMs = millis();
       FastLED.show();
     }
