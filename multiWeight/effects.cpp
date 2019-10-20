@@ -39,15 +39,11 @@ private:
 
     uint8_t gHue = 0;
     fract8 chanceOfGlitter = 255;
-    uint32_t delay = (1000 / FRAMES_PER_SECOND);
-
     int curr_steps = 0;
     int step_incr = 8;
     unsigned long startTime = millis();
     int stepCountUp = 0;
     int stepCountDown = STEP_NUM - 1;
-
-    Effect currentEffect = idle;
 
 public:
     Effects(CRGB *_leds)
@@ -63,6 +59,10 @@ public:
 
     void runEffect(Effect e, Parameters *params)
     {
+        if (e != idle){
+            FastLED.setBrightness(MAX_BRIGHTNESS);
+        }
+
         switch (e)
         {
         case e1:

@@ -185,7 +185,7 @@ p.setColor(CRGB::Red);
       }
     } */
 
-    e.runEffect(e6,&p);
+    e.runEffect(idle,&p);
 
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
