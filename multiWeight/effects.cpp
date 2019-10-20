@@ -34,6 +34,7 @@ private:
     unsigned long startTime = millis();
     int stepCountUp = 0;
     int stepCountDown = STEP_NUM - 1;
+    
 
 public:
     Effects(CRGB *_leds)
@@ -86,7 +87,7 @@ public:
         }
     }
 
-    bool lightBoardEscelate(Parameters *params)
+    void lightBoardEscelate(Parameters *params)
     {
         float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         uint8_t step = 1 << stepCountUp;
@@ -100,7 +101,7 @@ public:
         params->setCurrentTime(millis());
     }
 
-    bool lightBoardDescelate(Parameters *params)
+    void lightBoardDescelate(Parameters *params)
     {
         float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         if (numFromZeroToOne >= 1)
