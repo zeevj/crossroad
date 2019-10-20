@@ -146,6 +146,11 @@ void Task1code(void *pvParameters)
   FastLED.show();
   int counter = 0;
   int a[] = {0, 1};
+
+  const int FPS = 30;
+  const unsigned long frameTimeIntervalMs = 1000 / FPS;
+  unsigned long currentFrameTimeMs = 0;
+
   for (;;)
   {
 
@@ -178,8 +183,10 @@ void Task1code(void *pvParameters)
       }
     }
 
-    FastLED.delay(10);
-    FastLED.show();
+    if (millis() > (currentFrameTimeMs + frameTimeIntervalMs) ) {
+      currentFrameTimeMs = millis();
+      FastLED.show();
+    }
   }
 }
 
