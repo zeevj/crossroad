@@ -42,7 +42,7 @@ def handle_data(data):
                 print("bt",data_tokens[1],"is",data_tokens[2])
                 print("TODO: implement logics")
                
-#         print(data)
+        print("data",data)
         #needToWrite = True
         
 def write_data(write_data):
@@ -80,17 +80,18 @@ def read_from_port(ser):
 
         counter = 0 
         cc = 0
-
-        while True:
+        # while ser.in_waiting:
+        while 1:
+    
             cc += 1
-            print(cc)
-            print("read")
+            # print(cc)
+            # print("read")
             reading = ser.readline().decode('utf8','ignore')
             handle_data(reading)
-            if needToWrite:
-                write_data(reading)
+            # if needToWrite:
+            #     write_data(reading)
 
-            sleep(.1 / 10.0)  # Delay for one tenth of a second
+            # sleep(.1 / 10.0)  # Delay for one tenth of a second
 
 def waitForSerial(name):
     ser = None

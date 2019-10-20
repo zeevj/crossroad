@@ -38,7 +38,10 @@ def parse(key, data):
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
         cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
+        # print(cmd)
+        # print(myserial.global_serial)
         myserial.global_serial.write(cmd.encode())
+        # myserial.global_serial.write(cmd)
     elif ".wav" in data or ".mp3" in data:
         file = "./songs/"+data
         print("opening ", file)
@@ -53,6 +56,7 @@ def init_serial():
     myserial.read_from_port(myserial.global_serial)
         
 def main():
+    init_serial()
     pygame.init()
     pygame.mixer.init(48000, -16, 1, 1024)
 
@@ -89,7 +93,7 @@ def main():
                 parse(None, timeKey)
         timeCounterMs = int(timeCounterMs + tickMs)
         sleep(tickMs / 1000.0) 
-
+    exit(0)
 if __name__== "__main__":
       main()
 
