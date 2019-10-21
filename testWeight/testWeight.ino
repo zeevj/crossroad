@@ -24,7 +24,9 @@ struct Step {
   int lowThreshold = -4000;
   int histeressis = 2000;
   bool stepDetected;
-  bool stepsCounter;
+  int stepsValue;
+  int stepsAvgValue;
+  int stepsCounter;
 };
 
 Step steps[CHANNEL_COUNT];
@@ -35,10 +37,7 @@ Step steps[CHANNEL_COUNT];
 //int lowThreshold = -4000;
 //int histeressis = 2000;
 
-bool stepsDetected[CHANNEL_COUNT];
-int stepsValue[CHANNEL_COUNT];
-int stepsAvgValue[CHANNEL_COUNT];
-int stepsCounter[CHANNEL_COUNT];
+
 const int stepModes = 3;
 
 
@@ -48,7 +47,7 @@ bool isNewValWayOverUnder() {
 }
 
 void printBorders(int i) {
-      Serial.print( stepsValue[i] );
+      Serial.print( steps[i].stepsValue );
       Serial.print( "\t" );
       Serial.print(steps[i].highThreshold );
       Serial.print( "\t" );
@@ -56,7 +55,7 @@ void printBorders(int i) {
       Serial.print( "\t" );
       Serial.print(steps[i].lowThreshold );
       Serial.print( "\t" );
-      Serial.print(stepsAvgValue[i]);
+      Serial.print(steps[i].stepsAvgValue);
       Serial.print( "\t" );
       Serial.println(steps[i].lowThreshold + steps[i].histeressis );
 
@@ -145,23 +144,23 @@ void detectSteps() {
 
     float scaleResult = float(-results[i]);
     float lerpVal = 0.6;
-    if (abs(scaleResult - stepsValue[i]) > 10000) {
+    if (abs(scaleResult - steps[i].stepsValue) > 10000) {
       lerpVal = 0.99;
     }
 //    Serial.println(abs(scaleResult - stepsValue[i]) );
-    stepsValue[i] = stepsValue[i] * lerpVal + scaleResult * (1 - lerpVal);
+    steps[i].stepsValue = steps[i].stepsValue * lerpVal + scaleResult * (1 - lerpVal);
 
     float avgLerp = 0.999;
-    stepsAvgValue[i] = stepsAvgValue[i] * avgLerp + stepsValue[i] * (1-avgLerp);
+    steps[i].stepsAvgValue = steps[i].stepsAvgValue * avgLerp + steps[i].stepsValue * (1-avgLerp);
 
-    if (!stepsDetected[i]) {
-      if (stepsValue[i] > steps[i].highThreshold || stepsValue[i] < steps[i].lowThreshold   ) {
-        stepsDetected[i] = true;
-        stepsCounter[i]++;
+    if (!steps[i].stepDetected) {
+      if (steps[i].stepsValue > steps[i].highThreshold || steps[i].stepsValue < steps[i].lowThreshold   ) {
+        steps[i].stepDetected = true;
+        steps[i].stepsCounter++;
       }
     } else {
-      if (stepsValue[i] < (steps[i].highThreshold - (steps[i].histeressis ) ) && stepsValue[i] > (steps[i].lowThreshold + (steps[i].histeressis  )) ) {
-        stepsDetected[i] = false;
+      if (steps[i].stepsValue < (steps[i].highThreshold - (steps[i].histeressis ) ) && steps[i].stepsValue > (steps[i].lowThreshold + (steps[i].histeressis  )) ) {
+        steps[i].stepDetected = false;
       }
     }
     
@@ -176,9 +175,9 @@ void detectSteps() {
 
 void renderLeds() {
   for (int i = 0; i < scales.get_count(); ++i) {
-    if (stepsDetected[i]) {
+    if (steps[i].stepDetected) {
       CRGB cl;
-      int stp = stepsCounter[i] % stepModes;
+      int stp = steps[i].stepsCounter % stepModes;
 
       switch (stp) {
         case 0:
