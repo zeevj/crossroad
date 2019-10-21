@@ -2,7 +2,6 @@
 #include "parameters.cpp"
 
 #define TOTAL_NUM_LEDS 150
-#define STEP_NUM 7
 #define FRAMES_PER_SECOND 120
 #define MAX_BRIGHTNESS 255
 #define MIN_BRIGHTNESS 0
@@ -24,6 +23,7 @@ private:
     //pointer to leds array from main
     CRGB *leds;
     Step *steps;
+    int stepNum;
 
     uint8_t gHue = 0;
     fract8 chanceOfGlitter = 255;
@@ -31,12 +31,13 @@ private:
     int step_incr = 8;
     unsigned long startTime = millis();
     int stepCountUp = 0;
-    int stepCountDown = STEP_NUM - 1;
+    int stepCountDown = stepNum - 1;
 
 public:
-    Effects(CRGB *_leds)
+    Effects(CRGB *_leds,int _stepNum)
     {
         leds = _leds;
+        stepNum = _stepNum;
         EVERY_N_MILLISECONDS(20) { gHue++; } //FIXME - leave as is ?
     }
 
@@ -108,7 +109,7 @@ public:
 
     void lightBoard(uint8_t data, CRGB color)
     {
-        for (int i = 0; i < STEP_NUM; i++)
+        for (int i = 0; i < stepNum; i++)
         {
             bool isLightStep = bitRead(data, i);
             for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
@@ -201,7 +202,7 @@ public:
 
     void sinelon(Parameters *params)
     {
-        for (int i = 0; i < STEP_NUM; i++)
+        for (int i = 0; i < stepNum; i++)
         {
             // a colored dot sweeping back and forth, with fading trails
             fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);

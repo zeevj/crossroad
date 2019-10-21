@@ -2,9 +2,9 @@
 #include "HX711-multi.h"
 #include "effects.cpp"
 
-#define CLK 8 // clock pin to the load cell amp
+#define CLK_PIN 27 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {9, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
+byte DOUTS[] = {18}; //, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
 #define CHANNEL_COUNT sizeof(DOUTS) / sizeof(byte)
 long int results[CHANNEL_COUNT];
 
@@ -25,7 +25,7 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 TaskHandle_t Task3;
 
-Effects e = Effects(leds);
+Effects e = Effects(leds, CHANNEL_COUNT);
 Parameters p = Parameters();
 int effect = 0;
 
@@ -93,8 +93,8 @@ void detectSteps(HX711MULTI *scales)
       }
     }
     //
-    Serial.print(scaleResult + i * 20);
-    Serial.print((i != scales->get_count() - 1) ? "\t" : "\n");
+    Serial.println(scaleResult + i * 20);
+    //Serial.print((i != scales->get_count() - 1) ? "\t" : "\n");
   }
 }
 
@@ -158,14 +158,16 @@ void processTokens(int numOfTokens)
   //ef,5,1,100,255,0,0
   effect = tokens[1].toInt();
   p.setInterval(tokens[3].toInt());
-  p.setColor(CRGB(tokens[4].toInt(),tokens[5].toInt(),tokens[6].toInt()));
-  for (int i = 1; i < numOfTokens; i++)
+  p.setColor(CRGB(tokens[4].toInt(), tokens[5].toInt(), tokens[6].toInt()));
+
+  /* for (int i = 1; i < numOfTokens; i++)
   {
     Serial.print("token ");
     Serial.print(i);
     Serial.print(":");
     Serial.println(tokens[i]);
   }
+  */
   p.setStartTime(millis());
   p.setCurrentTime(millis());
 }
@@ -183,7 +185,7 @@ void Task1code(void *pvParameters)
   p.setInterval(100);
   p.setColor(CRGB(0, 0, 255));
 
-  const int FPS = 30;
+  const int FPS = 60;
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
   unsigned long currentFrameTimeMs = 0;
 
@@ -191,20 +193,20 @@ void Task1code(void *pvParameters)
   {
 
     uint8_t data = 0;
-    /*
-    if (xQueueReceive(queue_1, &data, portMAX_DELAY) == pdPASS) {
-      FastLED.clear();
-      for (int i = 0; i < CHANNEL_COUNT; i++) {
+    bool didGottMsg = false;
+    if (xQueueReceive(queue_1, &data, (TickType_t)0) == pdPASS)
+    {
+      didGottMsg = true;
+      for (int i = 0; i < CHANNEL_COUNT; i++)
+      {
         bool isStepOn = bitRead(data, i); //(i == counter); //
         for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
         {
-          leds[led] = (isStepOn ? CRGB::Red : CRGB::Black );
+          leds[led] = (isStepOn ? CRGB::Red : CRGB::Black);
         }
       }
       counter = (counter + 1) % 8;
-      FastLED.show();
     }
-    */
 
     String inData;
     int numberOfTokens = 0;
@@ -240,9 +242,10 @@ void Task1code(void *pvParameters)
         inData += recieved;
       }
     }
-
-    e.runEffect(effect, &p);
-
+    if(!didGottMsg) {
+      e.runEffect(effect, &p);
+    }
+    
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
     {
       currentFrameTimeMs = millis();
@@ -255,20 +258,19 @@ void Task2code(void *pvParameters)
 {
   Serial.print("Task1 running on core ");
   Serial.println(xPortGetCoreID());
-  ///HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
+  HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK_PIN);
 
   //TODO --
-  //tare();
+  tare(&scales);
   //calibrateThresholds();
 
   int cnt = 0;
 
-  const bool mockStepDetection = true;
+  const bool mockStepDetection = false;
 
   for (;;)
   {
-    //scales.read(results);
-    //detectSteps();
+    scales.read(results);
     /*
       0b00000001 - first step is on
       0b00010001 - first and fifth are on
@@ -286,7 +288,7 @@ void Task2code(void *pvParameters)
     }
     else
     {
-      ///detectSteps(&scales);
+      detectSteps(&scales);
     }
 
     uint8_t data = 1 << cnt;
@@ -380,8 +382,8 @@ void setup()
 
   startThreads();
 
-  uint8_t data = 0b00000011;
-  xQueueSend(queue_1, &data, portMAX_DELAY);
+  //uint8_t data = 0b00000011;
+  // xQueueSend(queue_1, &data, portMAX_DELAY);
 }
 
 void loop()
