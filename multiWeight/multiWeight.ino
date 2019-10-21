@@ -2,7 +2,6 @@
 #include "HX711-multi.h"
 #include "effects.cpp"
 
-
 #define CLK 8 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
 byte DOUTS[] = {9, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
@@ -27,8 +26,8 @@ TaskHandle_t Task2;
 TaskHandle_t Task3;
 
 Effects e = Effects(leds);
-Parameters p = Parameters(); //FIXME
-    
+Parameters p = Parameters();
+int effect = 0;
 
 void tare(HX711MULTI *scales)
 {
@@ -141,17 +140,27 @@ void renderLeds(HX711MULTI *scales)
 
 const uint maxTokens = 10;
 
-String tokens[maxTokens]; 
+String tokens[maxTokens];
 
-void processTokens(int numOfTokens) {
-  if (numOfTokens > 1) {
-    if (tokens[0].equals("ef")) {
-      e.runEffect(tokens[1].toInt(),&p);
+void processTokens(int numOfTokens)
+{
+  if (numOfTokens > 1)
+  {
+    if (!tokens[0].equals("ef"))
+    {
+      return;
     }
   }
-  for (int i = 0; i < numOfTokens;){
-    Serial.println(tokens[i]);
+  effect = tokens[1].toInt();
+  //ef,effect_number,turn_on,time,reg,green,blue
+  //ef,5,1,100,255,0,0
+  for (int i = 1; i < numOfTokens;)
+  {
+     Serial.println(tokens[i]);
+    // effect = tokens[1];
   }
+  p.setStartTime(millis());
+  p.setCurrentTime(millis());
 }
 
 void Task1code(void *pvParameters)
@@ -163,11 +172,10 @@ void Task1code(void *pvParameters)
   FastLED.clear();
   FastLED.show();
   int counter = 0;
-  int a[] = {0, 1};
 
-p.setInterval(100);
-p.setColor(CRGB::Red);
-  
+  p.setInterval(100);
+  p.setColor(CRGB(0, 0, 255));
+
   const int FPS = 30;
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
   unsigned long currentFrameTimeMs = 0;
@@ -191,43 +199,39 @@ p.setColor(CRGB::Red);
     }
     */
 
-  /*  if (Serial.available())
-    {
-      char inByte = ' ';
-      inByte = Serial.read(); // read the incoming data
-      Serial.println(inByte);
-      if (inByte == '1')
-      {
-      }
-    } */
-
     String inData;
     int numberOfTokens = 0;
 
-     while (Serial.available() > 0)
+    //ef,effect_number,turn_on,time,reg,green,blue
+    //ef,5,1,100,255,0,0
+    while (Serial.available() > 0)
     {
-        char recieved = Serial.read();
-        inData += recieved; 
+      char recieved = Serial.read();
+      inData += recieved;
 
-        // Process message when new line character is recieved
-        if (recieved == ',') {
-          tokens[numberOfTokens] = inData;
-          tokens[numberOfTokens].replace(" ", "");
-          inData = "";
-          numberOfTokens++;
-        }
-        else if (recieved == '\n') {
-            tokens[numberOfTokens] = inData;
-            tokens[numberOfTokens].replace(" ", "");
-            Serial.print("got message with: ");
-            Serial.print(numberOfTokens);
-            Serial.print(" tokens");
+      // Process message when new line character is recieved
+      if (recieved == ',')
+      {
+        tokens[numberOfTokens] = inData;
+        tokens[numberOfTokens].replace(" ", "");
+        inData = "";
+        numberOfTokens++;
+      }
+      else if (recieved == '\n')
+      {
+        tokens[numberOfTokens] = inData;
+        tokens[numberOfTokens].replace(" ", "");
+        Serial.print("got message with: ");
+        Serial.print(numberOfTokens);
+        Serial.print(" tokens");
 
-            inData = ""; // Clear recieved buffer
-            processTokens(numberOfTokens);
-            numberOfTokens = 0;
-        }
+        inData = ""; // Clear recieved buffer
+        processTokens(numberOfTokens);
+        numberOfTokens = 0;
+      }
     }
+
+    e.runEffect(effect, &p);
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
     {

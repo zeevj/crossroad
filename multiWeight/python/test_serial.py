@@ -121,7 +121,7 @@ def wait_for_port(port = None):
     port = ""
     if platform == "linux" or platform == "linux2":
         # linux
-        port = "/dev/ttyACM"
+        port = "/dev/ttyUSB0"
     elif platform == "darwin":
         # OS X
         port = "USBtoUART"
