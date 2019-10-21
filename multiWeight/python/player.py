@@ -43,9 +43,7 @@ def parse(key, data):
         #ef,5,1,100,255,0,0
         cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
         print("sending ", cmd)
-        # print(myserial.global_serial)
-        myserial.global_serial.write(cmd.encode())
-        # myserial.global_serial.write(cmd)
+        myserial.write(cmd.encode())
     elif ".wav" in data or ".mp3" in data:
         file = "./songs/"+data
         print("opening ", file)
@@ -53,12 +51,6 @@ def parse(key, data):
         # sounds[0] = pygame.mixer.Sound(file)
         pygame.mixer.music.play()
         pygame.mixer.music.stop()
-
-def init_serial():
-    myserial.global_serial = myserial.wait_for_port()
-    myserial.atexit.register(myserial.exit_handler)
-    thread_read_from_port = threading.Thread(target=myserial.read_from_port, args=("bbla",))
-    thread_read_from_port.start()
 
 def read_queue(text):
     queue = {}
@@ -81,11 +73,7 @@ def read_queue(text):
                     # print(val)
         except yaml.YAMLError as exc:
             print(exc)
-    # sleep(1) 
-    # myserial.global_serial.write(b'hello\n')
-    # sleep(1) 
-    # myserial.global_serial.write(b'goodbye\n')
-    # sleep(1) 
+
     while len(queue) > 0 :
         timeKey = queue.pop(timeCounterMs, None)
         # print("timeKey",timeCounterMs)
@@ -99,13 +87,14 @@ def read_queue(text):
         timeCounterMs = int(timeCounterMs + tickMs)
         sleep(tickMs / 1000.0) 
 
-    myserial.need_to_stop_tread = True
+    myserial.stop()
     print("closing")
     
     exit(0)
 
 def main():
-    init_serial()
+    # init_serial()
+    myserial.start()
     pygame.init()
     pygame.mixer.init(48000, -16, 1, 1024)
     thread_read_queue = threading.Thread(target=read_queue, daemon=True, args=("yo",))
@@ -116,5 +105,3 @@ def main():
     
 if __name__== "__main__":
       main()
-
-

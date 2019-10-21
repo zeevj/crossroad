@@ -133,7 +133,24 @@ def wait_for_port(port = None):
     return ser
     # thread = threading.Thread(target=read_from_port, args=(ser,))
     # thread.start()
+
+def write(txt):
+    if global_serial == None:
+        print("no derial connection")
+        return
+    global_serial.write(txt)
     
+def start():
+    global global_serial
+    global_serial = wait_for_port()
+    atexit.register(exit_handler)
+    thread_read_from_port = threading.Thread(target=read_from_port, args=("bbla",))
+    thread_read_from_port.start()
+
+def stop():
+    global need_to_stop_tread
+    need_to_stop_tread = True
+
 def main():
     global global_serial
     global_serial = wait_for_port()
