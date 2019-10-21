@@ -2,9 +2,9 @@
 #include "HX711-multi.h"
 #include "effects.cpp"
 
-#define CLK 8 // clock pin to the load cell amp
+#define CLK_PIN 8 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {9, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
+byte DOUTS[] = {18};//, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
 #define CHANNEL_COUNT sizeof(DOUTS) / sizeof(byte)
 long int results[CHANNEL_COUNT];
 
@@ -25,7 +25,7 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 TaskHandle_t Task3;
 
-Effects e = Effects(leds);
+Effects e = Effects(leds,CHANNEL_COUNT);
 Parameters p = Parameters();
 int effect = 0;
 
@@ -191,8 +191,8 @@ void Task1code(void *pvParameters)
   {
 
     uint8_t data = 0;
-    /*
-    if (xQueueReceive(queue_1, &data, portMAX_DELAY) == pdPASS) {
+    
+   /* if (xQueueReceive(queue_1, &data, portMAX_DELAY) == pdPASS) {
       FastLED.clear();
       for (int i = 0; i < CHANNEL_COUNT; i++) {
         bool isStepOn = bitRead(data, i); //(i == counter); //
@@ -203,8 +203,8 @@ void Task1code(void *pvParameters)
       }
       counter = (counter + 1) % 8;
       FastLED.show();
-    }
-    */
+    } */
+    
 
     String inData;
     int numberOfTokens = 0;
