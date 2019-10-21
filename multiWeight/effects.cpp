@@ -14,7 +14,9 @@ struct Step
     int lowThreshold = -4000;
     int histeressis = 2000;
     bool stepDetected;
-    bool stepsCounter;
+    int stepsValue;
+    int stepsAvgValue;
+    int stepsCounter;
 };
 
 class Effects
@@ -34,7 +36,7 @@ private:
     int stepCountDown = stepNum - 1;
 
 public:
-    Effects(CRGB *_leds,int _stepNum)
+    Effects(CRGB *_leds, int _stepNum)
     {
         leds = _leds;
         stepNum = _stepNum;
@@ -48,12 +50,16 @@ public:
 
     void runEffect(int e, Parameters *params)
     {
-        if (e > 0){
+        if (e > 0)
+        {
             FastLED.setBrightness(MAX_BRIGHTNESS);
         }
 
         switch (e)
         {
+        case 0:
+            lightsBeat(params);
+            break;
         case 1:
             lightBoardEscelate(params);
             break;
@@ -77,6 +83,7 @@ public:
             break;
         default:
             lightsBeat(params);
+            break;
         }
     }
 

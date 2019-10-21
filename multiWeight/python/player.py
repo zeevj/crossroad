@@ -32,13 +32,21 @@ def parse(key, data):
             pygame.mixer.Sound.stop(sounds[int(key[4:])])
             sounds[int(key[4:])] = pygame.mixer.Sound
     elif "ef" in data:
-        print("run effect", data[2:])
-        effect_number = data[2:]
+        effect_number = data[2:3]
+        print("run effect", effect_number)
+        tokens = data.split(",")
+        tokenslen = len(tokens)
+        if tokenslen > 1:
+            time = tokens[2]
+            red = tokens[3]
+            green = tokens[4]
+            blue = tokens[5]  
+        else:
+            time = 100
+            red = 255
+            green = 0
+            blue = 0                
         turn_on = 1
-        time = 100
-        red = 255
-        green = 0
-        blue = 0
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
         cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"

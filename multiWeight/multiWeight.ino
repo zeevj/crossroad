@@ -14,6 +14,7 @@ long int results[CHANNEL_COUNT];
 #define RUN_FOR_N_MILLISECONDS(N) for (uint32_t start = millis(); (millis() - start) < N;)
 
 CRGB leds[NUM_LEDS];
+int led = 2;
 
 Step steps[CHANNEL_COUNT];
 
@@ -26,7 +27,6 @@ TaskHandle_t Task2;
 TaskHandle_t Task3;
 
 Effects e = Effects(leds, CHANNEL_COUNT);
-Parameters p = Parameters();
 int effect = 0;
 
 void tare(HX711MULTI *scales)
@@ -43,12 +43,12 @@ void calibrateThresholds(HX711MULTI *scales)
 {
   for (int j = 0; j < scales->get_count(); j++)
   {
-    steps[j].highThreshold = -10000;
-    steps[j].lowThreshold = 10000;
+    steps[j].highThreshold = 2000;
+    steps[j].lowThreshold = -2000;
   }
 
   const int numberOfSamples = 80 * 4;
-  const float extraThresh = 0.4;
+  const float extraThresh = 0.1;
 
   for (int i = 0; i < numberOfSamples; i++)
   {
@@ -66,39 +66,75 @@ void calibrateThresholds(HX711MULTI *scales)
       {
         steps[j].lowThreshold = scaleResult - (scaleResult * extraThresh);
       }
+      steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
+
+      printBorders(j);
     }
 
     delay(1000 / 80);
   }
+
+//  Serial.print("hight threshold: ");
+//  Serial.println(steps[0].highThreshold);
+//  Serial.print("low threhsold: ");
+//  Serial.println(steps[0].lowThreshold);
+//  Serial.print("histeressis: ");
+//  Serial.println(steps[0].histeressis);
+
+  
 }
 
-void detectSteps(HX711MULTI *scales)
-{
-  for (int i = 0; i < scales->get_count(); ++i)
-  {
-    int scaleResult = -results[i];
-    if (!steps[i].stepDetected)
-    {
-      if (scaleResult > steps[i].highThreshold || scaleResult < steps[i].lowThreshold)
-      {
+void detectSteps(HX711MULTI *scales) {
+  for (int i = 0; i < scales->get_count(); ++i) {
+
+    float scaleResult = float(-results[i]);
+    float lerpVal = 0.6;
+    if (abs(scaleResult - steps[i].stepsValue) > 10000) {
+      lerpVal = 0.99;
+    }
+//    Serial.println(abs(scaleResult - stepsValue[i]) );
+    steps[i].stepsValue = steps[i].stepsValue * lerpVal + scaleResult * (1 - lerpVal);
+
+    float avgLerp = 0.999;
+    steps[i].stepsAvgValue = steps[i].stepsAvgValue * avgLerp + steps[i].stepsValue * (1-avgLerp);
+
+    if (!steps[i].stepDetected) {
+      if (steps[i].stepsValue > steps[i].highThreshold || steps[i].stepsValue < steps[i].lowThreshold   ) {
         steps[i].stepDetected = true;
         steps[i].stepsCounter++;
       }
-    }
-    else
-    {
-      if (scaleResult < steps[i].highThreshold - steps[i].histeressis && scaleResult > steps[i].lowThreshold + steps[i].histeressis)
-      {
+    } else {
+      if (steps[i].stepsValue < (steps[i].highThreshold - (steps[i].histeressis ) ) && steps[i].stepsValue > (steps[i].lowThreshold + (steps[i].histeressis  )) ) {
         steps[i].stepDetected = false;
       }
     }
+    
+
     //
-    Serial.println(scaleResult + i * 20);
-    //Serial.print((i != scales->get_count() - 1) ? "\t" : "\n");
+//    Serial.print( stepsValue[i] + i * 20);
+       printBorders(i);
+    
+//    Serial.print( (i != scales->get_count() - 1) ? "\t" : "\n");
   }
 }
 
 const int stepModes = 3;
+
+void printBorders(int i) {
+      Serial.print( steps[i].stepsValue );
+      Serial.print( "\t" );
+      Serial.print(steps[i].highThreshold );
+      Serial.print( "\t" );
+      Serial.print(steps[i].highThreshold - steps[i].histeressis );
+      Serial.print( "\t" );
+      Serial.print(steps[i].lowThreshold );
+      Serial.print( "\t" );
+      Serial.print(steps[i].stepsAvgValue);
+      Serial.print( "\t" );
+      Serial.println(steps[i].lowThreshold + steps[i].histeressis );
+
+      
+}
 
 void renderLeds(HX711MULTI *scales)
 {
@@ -142,7 +178,7 @@ const uint maxTokens = 10;
 
 String tokens[maxTokens];
 
-void processTokens(int numOfTokens)
+void processTokens(int numOfTokens, Parameters *p)
 {
   Serial.print("token 0:");
   Serial.println(tokens[0]);
@@ -157,23 +193,24 @@ void processTokens(int numOfTokens)
   //ef,effect_number,turn_on,time,reg,green,blue
   //ef,5,1,100,255,0,0
   effect = tokens[1].toInt();
-  p.setInterval(tokens[3].toInt());
-  p.setColor(CRGB(tokens[4].toInt(), tokens[5].toInt(), tokens[6].toInt()));
+  p->setInterval(tokens[3].toInt());
+  p->setColor(CRGB(tokens[4].toInt(), tokens[5].toInt(), tokens[6].toInt()));
 
-  /* for (int i = 1; i < numOfTokens; i++)
+  for (int i = 1; i <= numOfTokens; i++)
   {
     Serial.print("token ");
     Serial.print(i);
     Serial.print(":");
     Serial.println(tokens[i]);
   }
-  */
-  p.setStartTime(millis());
-  p.setCurrentTime(millis());
+  
+  p->setStartTime(millis());
+  p->setCurrentTime(millis());
 }
 
 void Task1code(void *pvParameters)
 {
+  pinMode(led, OUTPUT);
   Serial.print("Task1 running on core ");
   Serial.println(xPortGetCoreID());
 
@@ -182,6 +219,7 @@ void Task1code(void *pvParameters)
   FastLED.show();
   int counter = 0;
 
+  Parameters p = Parameters();
   p.setInterval(100);
   p.setColor(CRGB(0, 0, 255));
 
@@ -196,6 +234,7 @@ void Task1code(void *pvParameters)
     bool didGottMsg = false;
     if (xQueueReceive(queue_1, &data, (TickType_t)0) == pdPASS)
     {
+      digitalWrite(led, HIGH);
       didGottMsg = true;
       for (int i = 0; i < CHANNEL_COUNT; i++)
       {
@@ -215,6 +254,7 @@ void Task1code(void *pvParameters)
     //ef,5,1,100,255,0,0
     while (Serial.available() > 0)
     {
+      
       char recieved = Serial.read();
 
       // Process message when new line character is recieved
@@ -233,8 +273,8 @@ void Task1code(void *pvParameters)
         Serial.print(numberOfTokens);
         Serial.println(" tokens");
 
+        processTokens(numberOfTokens,&p);
         inData = ""; // Clear recieved buffer
-        processTokens(numberOfTokens);
         numberOfTokens = 0;
       }
       else
@@ -242,14 +282,18 @@ void Task1code(void *pvParameters)
         inData += recieved;
       }
     }
+    
+    
     if(!didGottMsg) {
-      e.runEffect(effect, &p);
+      
+      //e.runEffect(effect, &p);
     }
     
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
     {
       currentFrameTimeMs = millis();
       FastLED.show();
+      digitalWrite(led, LOW) ;
     }
   }
 }
@@ -262,7 +306,8 @@ void Task2code(void *pvParameters)
 
   //TODO --
   tare(&scales);
-  //calibrateThresholds();
+  calibrateThresholds(&scales);
+  
 
   int cnt = 0;
 
@@ -300,7 +345,7 @@ void Task2code(void *pvParameters)
 
     cnt = (cnt + 1) % 7;
 
-    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+    const TickType_t xDelay = (1000 / 80) / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
   }
 }
@@ -349,7 +394,7 @@ void initSteps()
 {
 
   steps[0].fromLed = 0;
-  steps[0].toLed = 10;
+  steps[0].toLed = 67;
 
   steps[1].fromLed = 11;
   steps[1].toLed = 20;
