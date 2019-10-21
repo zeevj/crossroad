@@ -112,7 +112,7 @@ def waitForSerial(name):
             if name in element.device:
                 print(element)
                 ser = serial.Serial(element.device, timeout=None)
-                ser.baudrate = 230400
+                ser.baudrate = 115200
                 # ser.baudrate = 9600
                 n = 600
                 print("found device\n")
