@@ -2,10 +2,14 @@ import pygame
 import yaml
 from time import sleep
 import glob
+import threading
 
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
+
+thread_read_queue = None
+thread_read_from_port = None
 
 def parse(key, data):
     print("--->>>",data)
@@ -38,7 +42,7 @@ def parse(key, data):
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
         cmd = "ef," + str(effect_number) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
-        # print(cmd)
+        print("sending ", cmd)
         # print(myserial.global_serial)
         myserial.global_serial.write(cmd.encode())
         # myserial.global_serial.write(cmd)
@@ -53,13 +57,10 @@ def parse(key, data):
 def init_serial():
     myserial.global_serial = myserial.wait_for_port()
     myserial.atexit.register(myserial.exit_handler)
-    myserial.read_from_port(myserial.global_serial)
-        
-def main():
-    init_serial()
-    pygame.init()
-    pygame.mixer.init(48000, -16, 1, 1024)
+    thread_read_from_port = threading.Thread(target=myserial.read_from_port, args=("bbla",))
+    thread_read_from_port.start()
 
+def read_queue(text):
     queue = {}
     timeCounterMs = 0
     tickMs = 100
@@ -80,8 +81,12 @@ def main():
                     # print(val)
         except yaml.YAMLError as exc:
             print(exc)
-
-    while len(queue) > 0:
+    # sleep(1) 
+    # myserial.global_serial.write(b'hello\n')
+    # sleep(1) 
+    # myserial.global_serial.write(b'goodbye\n')
+    # sleep(1) 
+    while len(queue) > 0 :
         timeKey = queue.pop(timeCounterMs, None)
         # print("timeKey",timeCounterMs)
         if timeKey != None:
@@ -93,7 +98,22 @@ def main():
                 parse(None, timeKey)
         timeCounterMs = int(timeCounterMs + tickMs)
         sleep(tickMs / 1000.0) 
+
+    myserial.need_to_stop_tread = True
+    print("closing")
+    
     exit(0)
+
+def main():
+    init_serial()
+    pygame.init()
+    pygame.mixer.init(48000, -16, 1, 1024)
+    thread_read_queue = threading.Thread(target=read_queue, daemon=True, args=("yo",))
+    thread_read_queue.start()
+    # while 1:
+    #     print("...")
+    #     sleep(1) 
+    
 if __name__== "__main__":
       main()
 

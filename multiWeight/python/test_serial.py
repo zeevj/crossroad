@@ -6,6 +6,7 @@ import serial.tools.list_ports
 from sys import platform
 import atexit
 
+need_to_stop_tread = False
 class Led:
     r = 127
     g = 127
@@ -68,8 +69,10 @@ def write_data(write_data):
 
     counter = (counter + 1) % NUM_OF_LEDS
     
-def read_from_port(ser):
-    global needToWrite
+def read_from_port(txt):
+    global global_serial
+    global need_to_stop_tread
+    
     connected = False
 
     while not connected:
@@ -80,18 +83,21 @@ def read_from_port(ser):
 
         counter = 0 
         cc = 0
-        # while ser.in_waiting:
+        line = []
+        # while global_serial.inWaiting():
+        # print(global_serial)
+        # cntr = 0
         while 1:
-    
-            cc += 1
-            # print(cc)
-            # print("read")
-            reading = ser.readline().decode('utf8','ignore')
-            handle_data(reading)
-            # if needToWrite:
-            #     write_data(reading)
+            if need_to_stop_tread:
+                exit(0)
+            while global_serial.inWaiting() > 1:
+                reading = global_serial.readline().decode('utf8','ignore')
+                print("read -> ",reading)
+                # handle_data(reading)
+                # if needToWrite:
+                #     write_data(reading)
 
-            # sleep(.1 / 10.0)  # Delay for one tenth of a second
+                # sleep(.1 / 10.0)  # Delay for one tenth of a second
 
 def waitForSerial(name):
     ser = None
@@ -105,8 +111,9 @@ def waitForSerial(name):
             # print(element)
             if name in element.device:
                 print(element)
-                ser = serial.Serial(element.device, timeout=1)
-                ser.baudrate = 230400
+                ser = serial.Serial(element.device, timeout=None)
+                # ser.baudrate = 230400
+                ser.baudrate = 9600
                 n = 600
                 print("found device\n")
                 return ser
