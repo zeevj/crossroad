@@ -25,21 +25,18 @@
  step6: ef11
  step7: ef11
 
- .1: play
 1: ef1
-3: ef2
-5: ef3
-7: ef4
-9: ef5
-11: ef6
-13: ef7
+.1: play
+2: ef2
+3.5: ef3
 
-15: ef1
-16: ef2
-17: ef3
-18: ef4
-19: ef5
-20: ef6
-21: ef7
+5: ef2
+7: stop
+7.3: black
+
+8.1: play
+10.1: stop
+11.2: ef2
+
 
 

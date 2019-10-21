@@ -144,6 +144,8 @@ String tokens[maxTokens];
 
 void processTokens(int numOfTokens)
 {
+  Serial.print("token 0:");
+  Serial.println(tokens[0]);
   if (numOfTokens > 1)
   {
     if (!tokens[0].equals("ef"))
@@ -151,13 +153,18 @@ void processTokens(int numOfTokens)
       return;
     }
   }
-  effect = tokens[1].toInt();
+
   //ef,effect_number,turn_on,time,reg,green,blue
   //ef,5,1,100,255,0,0
-  for (int i = 1; i < numOfTokens;)
+  effect = tokens[1].toInt();
+  p.setInterval(tokens[3].toInt());
+  p.setColor(CRGB(tokens[4].toInt(),tokens[5].toInt(),tokens[6].toInt()));
+  for (int i = 1; i < numOfTokens; i++)
   {
-     Serial.println(tokens[i]);
-    // effect = tokens[1];
+    Serial.print("token ");
+    Serial.print(i);
+    Serial.print(":");
+    Serial.println(tokens[i]);
   }
   p.setStartTime(millis());
   p.setCurrentTime(millis());
@@ -207,7 +214,6 @@ void Task1code(void *pvParameters)
     while (Serial.available() > 0)
     {
       char recieved = Serial.read();
-      inData += recieved;
 
       // Process message when new line character is recieved
       if (recieved == ',')
@@ -223,11 +229,15 @@ void Task1code(void *pvParameters)
         tokens[numberOfTokens].replace(" ", "");
         Serial.print("got message with: ");
         Serial.print(numberOfTokens);
-        Serial.print(" tokens");
+        Serial.println(" tokens");
 
         inData = ""; // Clear recieved buffer
         processTokens(numberOfTokens);
         numberOfTokens = 0;
+      }
+      else
+      {
+        inData += recieved;
       }
     }
 
