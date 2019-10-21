@@ -2,6 +2,7 @@
 #include "HX711-multi.h"
 #include "effects.cpp"
 
+
 #define CLK 8 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
 byte DOUTS[] = {9, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
@@ -138,6 +139,21 @@ void renderLeds(HX711MULTI *scales)
   FastLED.show();
 }
 
+const uint maxTokens = 10;
+
+String tokens[maxTokens]; 
+
+void processTokens(int numOfTokens) {
+  if (numOfTokens > 1) {
+    if (tokens[0].equals("ef")) {
+      e.runEffect(tokens[1].toInt(),&p);
+    }
+  }
+  for (int i = 0; i < numOfTokens;){
+    Serial.println(tokens[i]);
+  }
+}
+
 void Task1code(void *pvParameters)
 {
   Serial.print("Task1 running on core ");
@@ -185,8 +201,33 @@ p.setColor(CRGB::Red);
       }
     } */
 
-    e.runEffect(7,&p);
+    String inData;
+    int numberOfTokens = 0;
 
+     while (Serial.available() > 0)
+    {
+        char recieved = Serial.read();
+        inData += recieved; 
+
+        // Process message when new line character is recieved
+        if (recieved == ',') {
+          tokens[numberOfTokens] = inData;
+          tokens[numberOfTokens].replace(" ", "");
+          inData = "";
+          numberOfTokens++;
+        }
+        else if (recieved == '\n') {
+            tokens[numberOfTokens] = inData;
+            tokens[numberOfTokens].replace(" ", "");
+            Serial.print("got message with: ");
+            Serial.print(numberOfTokens);
+            Serial.print(" tokens");
+
+            inData = ""; // Clear recieved buffer
+            processTokens(numberOfTokens);
+            numberOfTokens = 0;
+        }
+    }
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
     {
