@@ -17,6 +17,7 @@ struct Step
     int stepsValue;
     int stepsAvgValue;
     int stepsCounter;
+    unsigned long hideEffectUntilTime = 0;
 };
 
 class Effects
@@ -85,6 +86,7 @@ public:
             lightsBeat(params);
             break;
         }
+        addSteps();
     }
 
     void lightsBeat(Parameters *params)
@@ -112,6 +114,21 @@ public:
             step_incr *= -1;
         }
         params->setCurrentTime(millis());
+    }
+
+    void addSteps()
+    {
+        uint8_t step;
+        for (int i = 0; i < stepNum; i++)
+        {
+            if (steps[i].hideEffectUntilTime > millis())
+            {
+                for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
+                {
+                    leds[led] = CRGB::Red;
+                }
+            }
+        }
     }
 
     void lightBoard(uint8_t data, CRGB color)
