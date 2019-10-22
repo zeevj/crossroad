@@ -57,16 +57,18 @@ void calibrateThresholds(HX711MULTI *scales)
     {
       int scaleResult = -results[j];
 
-      if (steps[j].highThreshold < scaleResult)
-      {
-        steps[j].highThreshold = scaleResult + (scaleResult * extraThresh);
-      }
+      if (abs(scaleResult - steps[j].stepsValue) > 10000) {
+        // maybe its a spike, dont calculate it in the threshold
+      } else {
+        if (steps[j].highThreshold < scaleResult) {
+          steps[j].highThreshold = scaleResult + (scaleResult * extraThresh);
+        }
 
-      if (steps[j].lowThreshold > scaleResult)
-      {
-        steps[j].lowThreshold = scaleResult - (scaleResult * extraThresh);
+        if (steps[j].lowThreshold > scaleResult) {
+          steps[j].lowThreshold = scaleResult - (scaleResult * extraThresh);
+        }
+        steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
       }
-      steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
 
      // printBorders(j);
     }
