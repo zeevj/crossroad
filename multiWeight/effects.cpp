@@ -26,6 +26,7 @@ private:
     //pointer to leds array from main
     CRGB *leds;
     Step *steps;
+    int stepsSize = 0;
     int stepNum;
 
     uint8_t gHue = 0;
@@ -44,9 +45,10 @@ public:
         EVERY_N_MILLISECONDS(20) { gHue++; } //FIXME - leave as is ?
     }
 
-    void setSteps(Step *_steps)
+    void setSteps(Step *_steps, int numberOfSteps)
     {
         steps = _steps;
+        stepsSize = numberOfSteps;
     }
 
     void runEffect(int e, Parameters *params)
@@ -81,6 +83,9 @@ public:
             break;
         case 7:
             sinelon(params);
+            break;
+        case 8:
+            paint(params);
             break;
         default:
             lightsBeat(params);
@@ -232,6 +237,19 @@ public:
             fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
             int pos = beatsin16(params->getInterval(), steps[i].fromLed, steps[i].toLed);
             leds[pos] += CHSV(gHue, 255, 192);
+        }
+    }
+
+    void paint(Parameters *params)
+    {
+        //hack: use interval param to select the step
+        int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
+        for (int i = steps[stepNum].fromLed; i < steps[stepNum].fromLed; i++)
+        {
+            // a colored dot sweeping back and forth, with fading trails
+            fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
+            int pos = beatsin16(params->getInterval(), steps[i].fromLed, steps[i].toLed);
+            leds[pos] += params->getColor();
         }
     }
 };

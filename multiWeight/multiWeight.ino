@@ -26,8 +26,8 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 TaskHandle_t Task3;
 
-Effects e = Effects(leds, CHANNEL_COUNT);
-int effect = 0;
+Effects effect = Effects(leds, CHANNEL_COUNT);
+int effectNum = 0;
 
 void tare(HX711MULTI *scales)
 {
@@ -182,7 +182,7 @@ const uint maxTokens = 10;
 
 String tokens[maxTokens];
 
-void processTokens(int numOfTokens, Parameters *p)
+void processTokens(int numOfTokens, Parameters *params)
 {
   Serial.print("token 0:");
   Serial.println(tokens[0]);
@@ -196,9 +196,9 @@ void processTokens(int numOfTokens, Parameters *p)
 
   //ef,effect_number,turn_on,time,reg,green,blue
   //ef,5,1,100,255,0,0
-  effect = tokens[1].toInt();
-  p->setInterval(tokens[3].toInt());
-  p->setColor(CRGB(tokens[4].toInt(), tokens[5].toInt(), tokens[6].toInt()));
+  effectNum = tokens[1].toInt();
+  params->setInterval(tokens[3].toInt());
+  params->setColor(CRGB(tokens[4].toInt(), tokens[5].toInt(), tokens[6].toInt()));
 
   for (int i = 1; i <= numOfTokens; i++)
   {
@@ -208,8 +208,8 @@ void processTokens(int numOfTokens, Parameters *p)
     Serial.println(tokens[i]);
   }
 
-  p->setStartTime(millis());
-  p->setCurrentTime(millis());
+  params->setStartTime(millis());
+  params->setCurrentTime(millis());
 }
 
 void Task1code(void *pvParameters)
@@ -223,9 +223,9 @@ void Task1code(void *pvParameters)
   FastLED.show();
   int counter = 0;
 
-  Parameters p = Parameters();
-  p.setInterval(100);
-  p.setColor(CRGB(0, 0, 255));
+  Parameters params = Parameters();
+  params.setInterval(100);
+  params.setColor(CRGB(0, 0, 255));
 
   const int FPS = 60;
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
@@ -279,7 +279,7 @@ void Task1code(void *pvParameters)
         Serial.print(numberOfTokens);
         Serial.println(" tokens");
 
-        processTokens(numberOfTokens, &p);
+        processTokens(numberOfTokens, &params);
         inData = ""; // Clear recieved buffer
         numberOfTokens = 0;
       }
@@ -291,7 +291,7 @@ void Task1code(void *pvParameters)
 
     if (!didGottMsg)
     {
-      e.runEffect(effect, &p);
+      effect.runEffect(effectNum, &params);
     }
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
@@ -423,7 +423,7 @@ void initSteps()
 void setup()
 {
   initSteps();
-  e.setSteps(steps);
+  effect.setSteps(steps,CHANNEL_COUNT);
 
   Serial.begin(115200);
   Serial.flush();
