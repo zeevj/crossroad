@@ -317,6 +317,8 @@ void Task2code(void *pvParameters)
 
   const bool mockStepDetection = false;
 
+  uint8_t prevData = 0;
+
   for (;;)
   {
     scales.read(results);
@@ -346,12 +348,16 @@ void Task2code(void *pvParameters)
     {
       bitWrite(data, i, steps[i].stepDetected);
     }
-    xQueueSend(queue_1, &data, portMAX_DELAY);
+
+    if (prevData != data) {
+      xQueueSend(queue_1, &data, portMAX_DELAY);
+    }
 
     cnt = (cnt + 1) % 7;
 
     const TickType_t xDelay = (1000 / 80) / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
+    prevData = data;
   }
 }
 
