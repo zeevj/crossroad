@@ -43,8 +43,8 @@ void calibrateThresholds(HX711MULTI *scales)
 {
   for (int j = 0; j < scales->get_count(); j++)
   {
-    steps[j].highThreshold = 2000;
-    steps[j].lowThreshold = -2000;
+    steps[j].highThreshold = 3000;
+    steps[j].lowThreshold = -3000;
   }
 
   const int numberOfSamples = 80 * 4;
@@ -53,11 +53,13 @@ void calibrateThresholds(HX711MULTI *scales)
   for (int i = 0; i < numberOfSamples; i++)
   {
     scales->read(results);
+    int lastResult;
+
     for (int j = 0; j < scales->get_count(); j++)
     {
       int scaleResult = -results[j];
 
-      if (abs(scaleResult - steps[j].stepsValue) > 10000) {
+      if (abs(scaleResult - lastResult) > 10000) {
         // maybe its a spike, dont calculate it in the threshold
       } else {
         if (steps[j].highThreshold < scaleResult) {
@@ -69,8 +71,8 @@ void calibrateThresholds(HX711MULTI *scales)
         }
         steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
       }
-
-     // printBorders(j);
+      lastResult = scaleResult;
+      printBorders(j);
     }
 
     delay(1000 / 80);
@@ -119,7 +121,7 @@ void detectSteps(HX711MULTI *scales)
 
     //
     //    Serial.print( stepsValue[i] + i * 20);
-    //printBorders(i);
+    printBorders(i);
 
     //    Serial.print( (i != scales->get_count() - 1) ? "\t" : "\n");
   }
