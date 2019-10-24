@@ -130,7 +130,7 @@ public:
             {
                 for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
                 {
-                    leds[led] = CRGB::Red;
+                    leds[led] = CRGB::White;
                 }
             }
         }
@@ -143,7 +143,7 @@ public:
             bool isLightStep = bitRead(data, i);
             for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
             {
-                leds[led] = (isLightStep ? color : CRGB::Black);
+                leds[led] = (isLightStep ? CRGB(color.r, color.g, color.b) : CRGB::Black);
             }
         }
     }
@@ -243,13 +243,13 @@ public:
     void paint(Parameters *params)
     {
         //hack: use interval param to select the step
-        int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
-        for (int i = steps[stepNum].fromLed; i < steps[stepNum].fromLed; i++)
+        //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
+        int stepNum = 0;
+        for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
         {
-            // a colored dot sweeping back and forth, with fading trails
-            fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
-            int pos = beatsin16(params->getInterval(), steps[i].fromLed, steps[i].toLed);
-            leds[pos] += params->getColor();
+
+            leds[i] = CRGB(255, 0, 0);
+            leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
         }
     }
 };

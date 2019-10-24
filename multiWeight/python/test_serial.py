@@ -5,6 +5,7 @@ import serial
 import serial.tools.list_ports
 from sys import platform
 import atexit
+import player as plaish
 
 need_to_stop_tread = False
 class Led:
@@ -23,6 +24,12 @@ leds = [Led] * NUM_OF_LEDS
 needToWrite = True
 global_serial = None
 
+songs_yamls = []
+
+
+current_song = 0
+currently_playing = False
+
 for index, led in enumerate(leds):
     leds[index] = Led()
 
@@ -33,15 +40,22 @@ def exit_handler():
         global_serial.close()
 
 def handle_data(data):
+    global current_song
+    global currently_playing
+
     if (len(data) > 0):
         data_tokens = [x.strip() for x in data.split(',')]
-        if len(data_tokens) > 1:
-            if "step" in data_tokens[0]:
-                print("st",data_tokens[1],"is",data_tokens[2])
-                print("TODO: implement logics")
-            if "button" in data_tokens[0]:
-                print("bt",data_tokens[1],"is",data_tokens[2])
-                print("TODO: implement logics")
+        if len(data_tokens) > 0:
+            #if "step" in data_tokens[0]:
+                #print("st",data_tokens[1],"is",data_tokens[2])
+                #print("TODO: implement logics")
+            if "bt" in data_tokens[0] and "1" in data_tokens[1]:
+                if currently_playing:
+                    return
+                current_song = (current_song+1) % len(songs_yamls)
+                plaish.play_song_num(current_song)
+                
+                #print("bt",data_tokens[1],"is",data_tokens[2])
                
         print("data",data)
         #needToWrite = True
@@ -93,7 +107,7 @@ def read_from_port(txt):
             while global_serial.inWaiting() > 1:
                 reading = global_serial.readline().decode('utf8','ignore')
                 print("read -> ",reading)
-                # handle_data(reading)
+                handle_data(reading)
                 # if needToWrite:
                 #     write_data(reading)
 
