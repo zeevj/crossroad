@@ -7,7 +7,7 @@ import threading
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
-songs_yamls = ["chacarron","masa","artbat"] 
+songs_yamls = ["goodbye_yellow_brkrd","chacarron","masa","artbat"] 
 myserial.songs_yamls = songs_yamls
 
 
