@@ -135,8 +135,8 @@ def wait_for_port(port = None):
     # thread.start()
 
 def write(txt):
+    global global_serial
     if global_serial == None:
-        print("no derial connection")
         return
     global_serial.write(txt)
     

@@ -1,0 +1,64 @@
+# time: parameter
+# example 
+# step1: ef10  -> when pressing on step1 run effect 10 
+# 3.5: ef3   ->  in time 3.5 seconds run effect 3
+#
+# ef,effect_number,turn_on,time,reg,green,blue
+# ef5,1,100,255,0,0
+#
+# 0 (idle) -  lightsBeat 
+# 1 - lightBoardEscelate
+# 2 - lightBoardDescelate
+# 3 - bpm
+# 4 - glitter
+# 5 - confetti
+# 6 - juggle
+# 7 - sinelon
+#bpm: 120
+offset: -0.0
+
+0:
+ button1: chacarron2.mp3
+ step1: ef10
+ step2: ef10
+ step3: ef10
+ step4: ef11
+ step5: ef11
+ step6: ef11
+ step7: ef11
+ action: play
+ 
+
+0.09492: ef,8,red
+0.641841: ef,8,blue
+1.206842: ef,8,black
+1.735683: ef,1,500
+3.918847: ef,2,500
+6.106532: ef,1,500
+8.280656: ef,2,500
+10.46834: ef,3,500
+11.562182: ef,8,500,black
+12.651504: ef,3,500,500
+13.736306: ef,8,500,black
+14.821108: ef,8,500,d
+15.372549: ef,8,500,blue
+15.91947: ef,8,500,red
+16.457351: ef,8,500,blue
+17.004272: ef,8,500,red
+17.542153: ef,8,500,blue
+18.084554: ef,8,500,red
+18.640515: ef,8,500,green
+19.187437: ef,8,500,red
+19.738878: ef,8,500,blue
+20.285799: ef,8,500,red
+20.82368: ef,8,500,blue
+21.370601: ef,8,500,red
+21.908482: ef,8,500,blue
+22.450883: ef,8,500,red
+23.006844: ef,8,500,green
+23.553765: ef,4,500,500
+
+
+
+
+

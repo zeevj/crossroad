@@ -36,16 +36,29 @@ def parse(key, data):
         print("run effect", effect_number)
         tokens = data.split(",")
         tokenslen = len(tokens)
-        if tokenslen > 1:
+        if tokenslen > 4:
             time = tokens[2]
-            red = tokens[3]
-            green = tokens[4]
-            blue = tokens[5]  
+            if "red" in tokens[3]:
+                red = 255
+                green = 0
+                blue = 0
+            elif "blue" in tokens[3]:
+                red = 0
+                green = 0
+                blue = 255
+            elif "green" in tokens[3]:
+                red = 0
+                green = 255
+                blue = 0
+            else:
+                red = tokens[3]
+                green = tokens[4]
+                blue = tokens[5]  
         else:
             time = 100
             red = 255
             green = 0
-            blue = 0                
+            blue = 0
         turn_on = 1
         #ef,effect_number,turn_on,time,reg,green,blue
         #ef,5,1,100,255,0,0
@@ -56,28 +69,42 @@ def parse(key, data):
         file = "./songs/"+data
         print("opening ", file)
         music = pygame.mixer.music.load(file)
+        while pygame.mixer.get_busy()
+            sleep(0.01) 
+        print("music",music)
         # sounds[0] = pygame.mixer.Sound(file)
         pygame.mixer.music.play()
         pygame.mixer.music.stop()
 
+    
+
 def read_queue(text):
     queue = {}
     timeCounterMs = 0
-    tickMs = 100
+    tickMs = 10
 
-    yamlList = glob.glob("./songs/*.yaml")
+    offset = 0
+
+    yamlList = glob.glob("./songs/cha*.yaml")
 
     with open(yamlList[0], 'r') as stream:
         try:
             queue = yaml.safe_load(stream)
             # print()
-
+            offs = queue.pop("offset", None)
+            if offs != None:
+                offset = offs
             keysToReplace = []
             for key in queue:
                 if isinstance(key, (int, float, complex)):
                     keysToReplace.append(key)
             for key in keysToReplace:
-                queue[int(key*1000)] = queue.pop(key)
+                key_time = key
+                if key_time > 0:
+                    key_time += offset
+                key_time = int((key_time)*100) * 10
+                print(key_time)
+                queue[key_time] = queue.pop(key)
                     # print(val)
         except yaml.YAMLError as exc:
             print(exc)
@@ -86,6 +113,7 @@ def read_queue(text):
         timeKey = queue.pop(timeCounterMs, None)
         # print("timeKey",timeCounterMs)
         if timeKey != None:
+            print(timeCounterMs)
             if isinstance(timeKey,dict):
                 for key in timeKey:
                     # print(timeKey.keys())
@@ -101,11 +129,11 @@ def read_queue(text):
     exit(0)
 
 def main():
-    # init_serial()
     myserial.start()
     pygame.init()
     pygame.mixer.init(48000, -16, 1, 1024)
-    thread_read_queue = threading.Thread(target=read_queue, daemon=True, args=("yo",))
+    thread_read_queue = threading.Thread(target=read_queue, daemon=False, args=("yo",))
+    
     thread_read_queue.start()
     # while 1:
     #     print("...")
