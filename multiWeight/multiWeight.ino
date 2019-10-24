@@ -26,6 +26,8 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 TaskHandle_t Task3;
 
+const int bttonPin = 21;
+
 Effects effect = Effects(leds, CHANNEL_COUNT);
 int effectNum = 0;
 
@@ -72,7 +74,7 @@ void calibrateThresholds(HX711MULTI *scales)
         steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
       }
       lastResult = scaleResult;
-      printBorders(j);
+      //printBorders(j);
     }
 
     delay(1000 / 80);
@@ -121,7 +123,7 @@ void detectSteps(HX711MULTI *scales)
 
     //
     //    Serial.print( stepsValue[i] + i * 20);
-    printBorders(i);
+    //printBorders(i);
 
     //    Serial.print( (i != scales->get_count() - 1) ? "\t" : "\n");
   }
@@ -188,8 +190,6 @@ String tokens[maxTokens];
 
 void processTokens(int numOfTokens, Parameters *params)
 {
-  Serial.print("token 0:");
-  Serial.println(tokens[0]);
   if (numOfTokens > 1)
   {
     if (!tokens[0].equals("ef"))
@@ -235,8 +235,24 @@ void Task1code(void *pvParameters)
   const unsigned long frameTimeIntervalMs = 1000 / FPS;
   unsigned long currentFrameTimeMs = 0;
 
+  bool buttonPressed = false;
+  unsigned long buttonPressIgnoreTillTime = 200;
+  const unsigned long buttonPressThrottleTimeMs = 200;
+  
+
   for (;;)
   {
+    bool isOn = digitalRead(21);
+    //Serial.println(isOn);
+    if (buttonPressed != isOn & !isOn) {
+      unsigned long currentTime = millis();
+      if (currentTime > buttonPressIgnoreTillTime) {
+        buttonPressIgnoreTillTime = currentTime + buttonPressThrottleTimeMs;
+        Serial.println("bt,1");
+      }
+    }
+
+    buttonPressed = isOn;
 
     uint8_t data = 0;
     bool didGottMsg = false;
@@ -434,7 +450,7 @@ void setup()
 {
   initSteps();
   effect.setSteps(steps,CHANNEL_COUNT);
-
+  pinMode(bttonPin,INPUT_PULLUP);
   Serial.begin(115200);
   Serial.flush();
 
