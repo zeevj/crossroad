@@ -7,7 +7,7 @@ import threading
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
-songs_yamls = ["chacarron"] 
+songs_yamls = ["chacarron","masa","artbat"] 
 myserial.songs_yamls = songs_yamls
 
 
@@ -18,6 +18,7 @@ thread_read_queue = None
 def play_song_num(num):
     thread_read_queue = threading.Thread(target=read_queue, daemon=True, args=(num,))
     thread_read_queue.start()
+
 def parse(key, data):
     print("--->>>",data)
     
@@ -98,6 +99,11 @@ def read_queue(current_song):
         offset = 0
 
         print("read_queue: ",current_song)
+        print("%$#%$#^^^$^$^^")
+        print(myserial.currently_playing)
+        print("%$#%$#^^^$^$^^")
+
+
         #yamlList = glob.glob("./songs/.yaml")
         with open("./songs/" + songs_yamls[current_song] + ".yaml", 'r') as stream:
             try:
@@ -133,8 +139,9 @@ def read_queue(current_song):
                     parse(None, timeKey)
             timeCounterMs = int(timeCounterMs + tickMs)
             sleep(tickMs / 1000.0)
-             
-        pygame.mixer.music.stop()    
+
+        pygame.mixer.music.stop()
+        myserial.currently_playing = False
         return
     #myserial.stop()
     #print("closing")
