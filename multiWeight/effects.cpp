@@ -1,9 +1,9 @@
 #include <FastLED.h>
 #include "parameters.cpp"
 
-#define TOTAL_NUM_LEDS 150
+#define TOTAL_NUM_LEDS 675
 #define FRAMES_PER_SECOND 120
-#define MAX_BRIGHTNESS 240
+#define MAX_BRIGHTNESS 100
 #define MIN_BRIGHTNESS 0
 
 struct Step
@@ -18,6 +18,7 @@ struct Step
     int stepsAvgValue;
     int stepsCounter;
     unsigned long hideEffectUntilTime = 0;
+    bool ledIsntalDirectionStraight = true;
 };
 
 class Effects
@@ -37,11 +38,11 @@ private:
     int stepCountUp = 0;
     int stepCountDown = stepNum - 1;
 
-    int greenStart = 0;
-    int greenEnd = 35;
-
     int redStart = 0;
-    int redEnd = 35;
+    int redEnd = 34;
+
+    int greenStart = 35;
+    int greenEnd = 69;
 
 public:
     Effects(CRGB *_leds, int _stepNum)
@@ -92,6 +93,12 @@ public:
             break;
         case 8:
             paint(params);
+            break;
+        case 9:
+            redRun(params);
+            break;
+        case 10:
+            green(params);
             break;
         default:
             lightsBeat(params);
@@ -205,7 +212,7 @@ public:
         }
         if (random8() < chanceOfGlitter)
         {
-            for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
+            for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
             {
                 leds[random16(TOTAL_NUM_LEDS)] += CRGB::White;
             }
@@ -248,12 +255,15 @@ public:
 
     void paint(Parameters *params)
     {
-        //hack: use interval param to select the step
-        //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
-        int stepNum = 0;
-        for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
+        for (int stepNum = 0; stepNum < stepsSize; stepNum++)
         {
-            leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
+            //hack: use interval param to select the step
+            //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
+            //int stepNum = 0;
+            for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
+            {
+                leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
+            }
         }
     }
 
