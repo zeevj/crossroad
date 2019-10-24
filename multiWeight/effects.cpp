@@ -3,7 +3,7 @@
 
 #define TOTAL_NUM_LEDS 150
 #define FRAMES_PER_SECOND 120
-#define MAX_BRIGHTNESS 255
+#define MAX_BRIGHTNESS 240
 #define MIN_BRIGHTNESS 0
 
 struct Step
@@ -36,6 +36,12 @@ private:
     unsigned long startTime = millis();
     int stepCountUp = 0;
     int stepCountDown = stepNum - 1;
+
+    int greenStart = 0;
+    int greenEnd = 35;
+
+    int redStart = 0;
+    int redEnd = 35;
 
 public:
     Effects(CRGB *_leds, int _stepNum)
@@ -247,9 +253,37 @@ public:
         int stepNum = 0;
         for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
         {
-
-            leds[i] = CRGB(255, 0, 0);
             leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
         }
+    }
+
+    void green(Parameters *params)
+    {
+        for (int i = greenStart; i < greenEnd; i++)
+        {
+            leds[i] = CRGB::Green;
+        }
+    }
+
+    void greenRun(Parameters *params)
+    {
+        fadeToBlackBy(leds, 35, 20);
+        int pos = beatsin16(60, greenStart, greenEnd - 1);
+        leds[pos] += CRGB::Green;
+    }
+
+    void red(Parameters *params)
+    {
+        for (int i = redStart; i < redEnd; i++)
+        {
+            leds[i] = CRGB::Red;
+        }
+    }
+
+    void redRun(Parameters *params)
+    {
+        fadeToBlackBy(leds, 35, 20);
+        int pos = beatsin16(60, redStart, redEnd - 1);
+        leds[pos] += CRGB::Red;
     }
 };
