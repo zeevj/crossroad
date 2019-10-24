@@ -96,7 +96,7 @@ def read_queue(current_song):
         tickMs = 10
 
         offset = 0
-        
+
         print("read_queue: ",current_song)
         #yamlList = glob.glob("./songs/.yaml")
         with open("./songs/" + songs_yamls[current_song] + ".yaml", 'r') as stream:
@@ -132,7 +132,9 @@ def read_queue(current_song):
                 else:
                     parse(None, timeKey)
             timeCounterMs = int(timeCounterMs + tickMs)
-            sleep(tickMs / 1000.0) 
+            sleep(tickMs / 1000.0)
+             
+        pygame.mixer.music.stop()    
         return
     #myserial.stop()
     #print("closing")
