@@ -4,11 +4,11 @@
 
 #define CLK_PIN 27 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {18}; //, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
+byte DOUTS[] = {3,9,10, 11, 12, 13, 18}; //, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
 #define CHANNEL_COUNT sizeof(DOUTS) / sizeof(byte)
 long int results[CHANNEL_COUNT];
 
-#define NUM_LEDS 150
+#define NUM_LEDS 675
 #define DATA_PIN 5
 
 #define RUN_FOR_N_MILLISECONDS(N) for (uint32_t start = millis(); (millis() - start) < N;)
@@ -17,6 +17,8 @@ CRGB leds[NUM_LEDS];
 int led = 2;
 
 Step steps[CHANNEL_COUNT];
+//35 35 67 108 111 124 138
+//69 136 244 355 479 617
 
 //////// THREADS
 
@@ -61,14 +63,19 @@ void calibrateThresholds(HX711MULTI *scales)
     {
       int scaleResult = -results[j];
 
-      if (abs(scaleResult - lastResult) > 10000) {
+      if (abs(scaleResult - lastResult) > 10000)
+      {
         // maybe its a spike, dont calculate it in the threshold
-      } else {
-        if (steps[j].highThreshold < scaleResult) {
+      }
+      else
+      {
+        if (steps[j].highThreshold < scaleResult)
+        {
           steps[j].highThreshold = scaleResult + (scaleResult * extraThresh);
         }
 
-        if (steps[j].lowThreshold > scaleResult) {
+        if (steps[j].lowThreshold > scaleResult)
+        {
           steps[j].lowThreshold = scaleResult - (scaleResult * extraThresh);
         }
         steps[j].histeressis = abs(steps[j].highThreshold - steps[j].lowThreshold) * 0.25;
@@ -238,15 +245,16 @@ void Task1code(void *pvParameters)
   bool buttonPressed = false;
   unsigned long buttonPressIgnoreTillTime = 200;
   const unsigned long buttonPressThrottleTimeMs = 200;
-  
 
   for (;;)
   {
     bool isOn = digitalRead(21);
     //Serial.println(isOn);
-    if (buttonPressed != isOn & !isOn) {
+    if (buttonPressed != isOn & !isOn)
+    {
       unsigned long currentTime = millis();
-      if (currentTime > buttonPressIgnoreTillTime) {
+      if (currentTime > buttonPressIgnoreTillTime)
+      {
         buttonPressIgnoreTillTime = currentTime + buttonPressThrottleTimeMs;
         Serial.println("bt,1");
       }
@@ -302,6 +310,10 @@ void Task1code(void *pvParameters)
         processTokens(numberOfTokens, &params);
         inData = ""; // Clear recieved buffer
         numberOfTokens = 0;
+        for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
+        {
+            leds[i] = CRGB::Black;
+        }
       }
       else
       {
@@ -369,7 +381,8 @@ void Task2code(void *pvParameters)
       bitWrite(data, i, steps[i].stepDetected);
     }
 
-    if (prevData != data) {
+    if (prevData != data)
+    {
       xQueueSend(queue_1, &data, portMAX_DELAY);
     }
 
@@ -391,7 +404,7 @@ void startThreads()
   xTaskCreatePinnedToCore(
       Task1code, /* Task function. */
       "Task1",   /* name of task. */
-      10000,     /* Stack size of task */
+      20000,     /* Stack size of task */
       NULL,      /* parameter of the task */
       1,         /* priority of the task */
       &Task1,    /* Task handle to keep track of created task */
@@ -424,33 +437,40 @@ void startThreads()
 void initSteps()
 {
 
-  steps[0].fromLed = 0;
-  steps[0].toLed = 67;
+  //69 136 244 355 479 617 670
+  int num = 0;
+  steps[num].fromLed = 0;
+  steps[num].toLed = steps[num].fromLed + 53 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 68 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 83 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 97 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 111 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 124 -1;
+  num ++;
+  steps[num].fromLed = steps[num-1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 139 -1;
 
-  steps[1].fromLed = 11;
-  steps[1].toLed = 20;
 
-  steps[2].fromLed = 21;
-  steps[2].toLed = 40;
-
-  steps[3].fromLed = 41;
-  steps[3].toLed = 75;
-
-  steps[4].fromLed = 76;
-  steps[4].toLed = 95;
-
-  steps[5].fromLed = 96;
-  steps[5].toLed = 120;
-
-  steps[6].fromLed = 121;
-  steps[6].toLed = 150;
+  steps[0].ledIsntalClockWise = false;
+  steps[1].ledIsntalClockWise = false;
+  steps[2].ledIsntalClockWise = false;
 }
 
 void setup()
 {
   initSteps();
-  effect.setSteps(steps,CHANNEL_COUNT);
-  pinMode(bttonPin,INPUT_PULLUP);
+  effect.setSteps(steps, CHANNEL_COUNT);
+  pinMode(bttonPin, INPUT_PULLUP);
   Serial.begin(115200);
   Serial.flush();
 

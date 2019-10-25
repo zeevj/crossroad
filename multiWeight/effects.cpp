@@ -1,9 +1,9 @@
 #include <FastLED.h>
 #include "parameters.cpp"
 
-#define TOTAL_NUM_LEDS 150
+#define TOTAL_NUM_LEDS 675
 #define FRAMES_PER_SECOND 120
-#define MAX_BRIGHTNESS 255
+#define MAX_BRIGHTNESS 100
 #define MIN_BRIGHTNESS 0
 
 struct Step
@@ -18,6 +18,25 @@ struct Step
     int stepsAvgValue;
     int stepsCounter;
     unsigned long hideEffectUntilTime = 0;
+    bool ledIsntalClockWise= true;
+    int getLedNumber(int num) {
+        if (ledIsntalClockWise) {
+            return fromLed + num;
+        } else{
+            return toLed - num;
+        }  
+    }
+
+     int getLedInLedsArray(int num) {
+        if (ledIsntalClockWise) {
+            return num;
+        } else{
+            return toLed + fromLed - num;
+        }  
+    }
+    int getTotalLeds(){
+        return toLed - fromLed;
+    }
 };
 
 class Effects
@@ -36,6 +55,12 @@ private:
     unsigned long startTime = millis();
     int stepCountUp = 0;
     int stepCountDown = stepNum - 1;
+
+    int redStart = 0;
+    int redEnd = 34;
+
+    int greenStart = 35;
+    int greenEnd = 69;
 
 public:
     Effects(CRGB *_leds, int _stepNum)
@@ -86,6 +111,15 @@ public:
             break;
         case 8:
             paint(params);
+            break;
+        case 9:
+            redRun(params);
+            break;
+        case 10:
+            green(params);
+            break;
+        case 11:
+            snake(params);
             break;
         default:
             lightsBeat(params);
@@ -199,7 +233,7 @@ public:
         }
         if (random8() < chanceOfGlitter)
         {
-            for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
+            for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
             {
                 leds[random16(TOTAL_NUM_LEDS)] += CRGB::White;
             }
@@ -242,14 +276,73 @@ public:
 
     void paint(Parameters *params)
     {
-        //hack: use interval param to select the step
-        //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
-        int stepNum = 0;
-        for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
+        for (int stepNum = 0; stepNum < stepsSize; stepNum++)
         {
-
-            leds[i] = CRGB(255, 0, 0);
-            leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
+            //hack: use interval param to select the step
+            //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
+            //int stepNum = 0;
+            for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
+            {
+                leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
+            }
         }
     }
+
+    void green(Parameters *params)
+    {
+        for (int i = greenStart; i < greenEnd; i++)
+        {
+            leds[i] = CRGB::Green;
+        }
+    }
+
+    void greenRun(Parameters *params)
+    {
+        fadeToBlackBy(leds, 35, 20);
+        int pos = beatsin16(60, greenStart, greenEnd - 1);
+        leds[pos] += CRGB::Green;
+    }
+
+    void red(Parameters *params)
+    {
+        for (int i = redStart; i < redEnd; i++)
+        {
+            leds[i] = CRGB::Red;
+        }
+    }
+
+    void redRun(Parameters *params)
+    {
+        fadeToBlackBy(leds, 35, 20);
+        int pos = beatsin16(60, redStart, redEnd - 1);
+        leds[pos] += CRGB::Red;
+    }
+
+    int cntctn; 
+    void snake2(Parameters *params)
+    {   
+        
+        for( int i = steps[0].fromLed; i < steps[stepsSize-1].toLed; i++){
+            leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
+        }
+        cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
+    }
+
+    void snake(Parameters *params)
+    {   
+
+        for( int i = 0; i < stepsSize; i++){
+            for (int j = steps[i].fromLed; j < steps[i].toLed; j++){
+                if (cntctn == steps[i].getLedInLedsArray(j) ) {
+                    leds[j] =  params->getColor();
+                } else {
+                    leds[j] =  CRGB::Black;
+                }
+            }
+            //leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
+        }
+        cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
+    }
+
+   
 };

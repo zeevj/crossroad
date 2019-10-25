@@ -52,6 +52,7 @@ def handle_data(data):
             if "bt" in data_tokens[0] and "1" in data_tokens[1]:
                 if currently_playing:
                     return
+                currently_playing = True   
                 current_song = (current_song+1) % len(songs_yamls)
                 plaish.play_song_num(current_song)
                 
