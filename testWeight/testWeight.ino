@@ -2,9 +2,9 @@
 
 //================== HX711-multi =============
 #include "HX711-multi.h"
-#define CLK 25      // clock pin to the load cell amp
+#define CLK 11      // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {18}; //data from each pressure amplifier
+byte DOUTS[] = {10}; //data from each pressure amplifier
 #define CHANNEL_COUNT sizeof(DOUTS)/sizeof(byte)
 long int results[CHANNEL_COUNT];
 HX711MULTI scales(CHANNEL_COUNT, DOUTS, CLK);
@@ -20,12 +20,12 @@ int led = 2;
 struct Step {
   int fromLed;
   int toLed;
-  int highThreshold = 4000;
-  int lowThreshold = -4000;
-  int histeressis = 2000;
+  float  highThreshold = 4000;
+  float lowThreshold = -4000;
+  float histeressis = 2000;
   bool stepDetected;
-  int stepsValue;
-  int stepsAvgValue;
+  float stepsValue;
+  float stepsAvgValue;
   int stepsCounter;
 };
 
@@ -143,7 +143,7 @@ void detectSteps() {
   for (int i = 0; i < scales.get_count(); ++i) {
 
     float scaleResult = float(-results[i]);
-    float lerpVal = 0.6;
+    float lerpVal = 0.7;
     if (abs(scaleResult - steps[i].stepsValue) > 10000) {
       lerpVal = 0.99;
     }
