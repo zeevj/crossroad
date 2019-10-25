@@ -459,8 +459,11 @@ void initSteps()
   num ++;
   steps[num].fromLed = steps[num-1].toLed + 1;
   steps[num].toLed = steps[num].fromLed + 139 -1;
-  
 
+
+  steps[0].ledIsntalClockWise = false;
+  steps[1].ledIsntalClockWise = false;
+  steps[2].ledIsntalClockWise = false;
 }
 
 void setup()

@@ -18,7 +18,25 @@ struct Step
     int stepsAvgValue;
     int stepsCounter;
     unsigned long hideEffectUntilTime = 0;
-    bool ledIsntalDirectionStraight = true;
+    bool ledIsntalClockWise= true;
+    int getLedNumber(int num) {
+        if (ledIsntalClockWise) {
+            return fromLed + num;
+        } else{
+            return toLed - num;
+        }  
+    }
+
+     int getLedInLedsArray(int num) {
+        if (ledIsntalClockWise) {
+            return num;
+        } else{
+            return toLed + fromLed - num;
+        }  
+    }
+    int getTotalLeds(){
+        return toLed - fromLed;
+    }
 };
 
 class Effects
@@ -99,6 +117,9 @@ public:
             break;
         case 10:
             green(params);
+            break;
+        case 11:
+            snake(params);
             break;
         default:
             lightsBeat(params);
@@ -296,4 +317,32 @@ public:
         int pos = beatsin16(60, redStart, redEnd - 1);
         leds[pos] += CRGB::Red;
     }
+
+    int cntctn; 
+    void snake2(Parameters *params)
+    {   
+        
+        for( int i = steps[0].fromLed; i < steps[stepsSize-1].toLed; i++){
+            leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
+        }
+        cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
+    }
+
+    void snake(Parameters *params)
+    {   
+
+        for( int i = 0; i < stepsSize; i++){
+            for (int j = steps[i].fromLed; j < steps[i].toLed; j++){
+                if (cntctn == steps[i].getLedInLedsArray(j) ) {
+                    leds[j] =  params->getColor();
+                } else {
+                    leds[j] =  CRGB::Black;
+                }
+            }
+            //leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
+        }
+        cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
+    }
+
+   
 };
