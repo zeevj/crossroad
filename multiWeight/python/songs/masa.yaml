@@ -19,20 +19,19 @@ offset: -0.0
 
 0:
  button1: masa.mp3
- step1: ef10
- step2: ef10
- step3: ef10
- step4: ef11
- step5: ef11
- step6: ef11
- step7: ef11
+ step1: e10
+ step2: e10
+ step3: e10
+ step4: e11
+ step5: e11
+ step6: e11
+ step7: e11
  action: play
 
-0.1: ef,8,150,255,255,255
-2.252336: ef,0,7,blue
-8.753923: ef,3,115,red
-17.229206: ef,4,115,red
-25: ef,3,115,red
-33.854694: ef,0,100,128,0,128
-40: ef,0,100,128,0,128
-
+0.1: e8,t150,r255,g255,b255
+2.252336: e0,t7,cblue
+8.753923: e3,t115,cred
+17.229206: e4,t115,cred
+25: e3,t115,cred
+33.854694: e0,t100,r128,g0,b128
+40: e0,t100,128,0,128

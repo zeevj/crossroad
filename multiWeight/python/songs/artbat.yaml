@@ -19,34 +19,34 @@ offset: -0.0
 
 0:
  button1: arbat.mp3
- step1: ef10
- step2: ef10
- step3: ef10
- step4: ef11
- step5: ef11
- step6: ef11
- step7: ef11
+ step1: e10
+ step2: e10
+ step3: e10
+ step4: e11
+ step5: e11
+ step6: e11
+ step7: e11
  action: play
 
-0.1: ef,7,100,0,255,100
-4.036320: ef,8,1,red
-4.523406: ef,8,1,blue
-5.023481: ef,8,1,red
-5.510567: ef,8,1,blue
-5.974922: ef,8,1,red
-6.462008: ef,8,1,blue
-6.962083: ef,8,1,red
-7.449169: ef,8,1,blue
-7.913525: ef,8,1,red
-8.400611: ef,8,1,blue
-8.900686: ef,8,1,red
-9.387772: ef,8,1,blue
-9.844009: ef,8,1,blue
-10.329471: ef,8,1,black
-10.813310: ef,8,1,blue
-11.295525: ef,8,1,black
-11.772870: ef,3,200,255,255,255
-17: ef,0,100,red
+0.1: e7,t100,r0,g255,b100
+4.036320: e8,t1,cred
+4.523406: e8,t1,cblue
+5.023481: e8,t1,cred
+5.510567: e8,t1,cblue
+5.974922: e8,t1,cred
+6.462008: e8,t1,cblue
+6.962083: e8,t1,cred
+7.449169: e8,t1,cblue
+7.913525: e8,t1,cred
+8.400611: e8,t1,cblue
+8.900686: e8,t1,cred
+9.387772: e8,t1,cblue
+9.844009: e8,t1,cblue
+10.329471: e8,t1,cblack
+10.813310: e8,t1,cblue
+11.295525: e8,t1,cblack
+11.772870: e3,t200,r255,g255,b255
+17: e0,t100,cred
 
 
 
