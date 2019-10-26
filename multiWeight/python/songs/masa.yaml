@@ -19,13 +19,13 @@ offset: -0.0
 
 0:
  button1: masa.mp3
- step1: e10
- step2: e10
- step3: e10
- step4: e11
- step5: e11
- step6: e11
- step7: e11
+ #step1: e10
+ #step2: e10
+ #step3: e10
+ #step4: e11
+ #step5: e11
+ #step6: e11
+ #step7: e11
  action: play
 
 0.1: e8,t150,r255,g255,b255

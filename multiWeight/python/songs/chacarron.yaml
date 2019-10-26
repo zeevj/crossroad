@@ -19,13 +19,13 @@ offset: -0.0
 
 0:
  button1: chacarron2.mp3
- step1: e10
- step2: e10
- step3: e10
- step4: e11
- step5: e11
- step6: e11
- step7: e11
+ #step1: e10
+ #step2: e10
+ #step3: e10
+ #step4: e11
+ #step5: e11
+ #step6: e11
+ #step7: e11
  action: play
 
 0.09492: e8,t100,cred

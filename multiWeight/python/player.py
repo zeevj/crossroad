@@ -37,50 +37,51 @@ def parse(key, data):
     blue = 0
     turn_on = 1
 
-    for tok in data_tokens:
-        # if k is not None and "step" in k:
-        #     dt = [item.strip() for item in data.split(',')]
-        #     if "ef" in data:
-        #     print("step",k[4:],"will trigger effect", data[2:], "when pressed")
-        # if ".wav" in data or ".mp3" in data:
-        #     file = "./songs/"+data
-        #     sounds[int(k[4:])] = pygame.mixer.Sound(file)
-        # if "nosound" in data:
-        #     pygame.mixer.Sound.stop(sounds[int(k[4:])])
-        #     sounds[int(k[4:])] = pygame.mixer.Sound
+    if key != "button1" and key != "action":
+        for tok in data_tokens:
+            # if k is not None and "step" in k:
+            #     dt = [item.strip() for item in data.split(',')]
+            #     if "ef" in data:
+            #     print("step",k[4:],"will trigger effect", data[2:], "when pressed")
+            # if ".wav" in data or ".mp3" in data:
+            #     file = "./songs/"+data
+            #     sounds[int(k[4:])] = pygame.mixer.Sound(file)
+            # if "nosound" in data:
+            #     pygame.mixer.Sound.stop(sounds[int(k[4:])])
+            #     sounds[int(k[4:])] = pygame.mixer.Sound
 
-        first_char = tok[0]
-        the_rest = tok[1:]
+            first_char = tok[0]
+            the_rest = tok[1:]
 
-        if "e" == first_char:
-            effect = int(the_rest)
-            send_data = True
-        elif "t" == first_char:
-            time = int(the_rest)
-        elif "c" == first_char:
-            #pip3 install colour
-            color = Color(the_rest)
-            red = int(color.red*255)
-            green = int(color.green*255)
-            blue = int(color.blue*255)
-        elif "r" == first_char:
-            red = int(the_rest)
-        elif "g" == first_char:
-            green = int(the_rest)
-        elif "b" == first_char:
-            blue = int(the_rest)
-        elif "o" == first_char:
-            turn_on = int(the_rest)
+            if "e" == first_char:
+                effect = int(the_rest)
+                send_data = True
+            elif "t" == first_char:
+                time = int(the_rest)
+            elif "c" == first_char:
+                #pip3 install colour
+                color = Color(the_rest)
+                red = int(color.red*255)
+                green = int(color.green*255)
+                blue = int(color.blue*255)
+            elif "r" == first_char:
+                red = int(the_rest)
+            elif "g" == first_char:
+                green = int(the_rest)
+            elif "b" == first_char:
+                blue = int(the_rest)
+            elif "o" == first_char:
+                turn_on = int(the_rest)
     if send_data:
         cmd = "ef," + str(effect) + "," + str(turn_on) + "," + str(time) + "," + str(red) + "," + str(green) + "," + str(blue) + "\n"
         print("sending ", cmd)
         myserial.write(cmd.encode())
     
-    if "!play" in data:
+    if "play" in data:
         print("found play")
         pygame.mixer.music.play()
         # pygame.mixer.Sound.play(sounds[0])
-    elif "!stop" in data:
+    elif "stop" in data:
         print("found stop")
         pygame.mixer.music.stop()
         # pygame.mixer.Sound.stop(sounds[0])
@@ -154,12 +155,6 @@ def read_queue(current_song):
         tickMs = 10
 
         offset = 0
-
-        print("read_queue: ",current_song)
-        print("%$#%$#^^^$^$^^")
-        print(myserial.currently_playing)
-        print("%$#%$#^^^$^$^^")
-
 
         #yamlList = glob.glob("./songs/.yaml")
         with open("./songs/" + songs_yamls[current_song] + ".yaml", 'r') as stream:

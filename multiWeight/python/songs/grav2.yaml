@@ -17,13 +17,7 @@
 
 0:
  button1: grav1.mp3
- step1: e10
- step2: e10
- step3: e10
- step4: e11
- step5: e11
- step6: e11
- step7: e11
+ 
 
 1: e1
 .1: play
