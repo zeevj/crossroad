@@ -14,27 +14,29 @@
 # 5 - confetti
 # 6 - juggle
 # 7 - sinelon
+# 8 - paint
+# 9 - running green
+# 10 - running red
+# 11 - red
 #bpm: 120
 offset: -0.0
 
 0:
- button1: goodbye_yellow_brkrd.mp3
+ button1: witchraft.wav
+
  action: play
 
 0.01: e9,t100,cgreen
-0.1: e1,t70,r255,g255,b0
-11.880559: e1,t100,r255,g255,b0
-19.811815: e2,t100,r255,g255,b0
-27.511063: e1,t100,r255,g255,b0
-34.533190: e2,t10,r255,g255,b0
-37.533835: e1,t30,r255,g255,b0
-41.342213: e2,t30,r255,g255,b0
-43.521375: e5
-55.494737: e2,t100,r255,g255,b0
-58.438685: e1,t100,r255,g255,b0
-59: e10,t100,cred
-61: e11,t100,cred
-62: e30,t100,r255,g255,b0
-
-
-
+0.357793: e1,t2,cred
+1.744240: e2,t2,cred
+3.121743: e3,t200
+5.890165: e1,t2,cblue
+7.263195: e2,t2,cblue
+8.663060: e3,t200
+11.422537: e1,t2,cpurple
+12.768733: e2,t2,cpurple
+14.168598: e3,t200
+16.932548: e4
+19.2: e10,cred
+20: e11,cred
+21: e20,t100,cblue

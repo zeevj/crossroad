@@ -1,0 +1,45 @@
+# time: parameter
+# example 
+# step1: ef10  -> when pressing on step1 run effect 10 
+# 3.5: ef3   ->  in time 3.5 seconds run effect 3
+#
+# ef,effect_number,turn_on,time,reg,green,blue
+# ef5,1,100,255,0,0
+#
+# 0 (idle) -  lightsBeat 
+# 1 - lightBoardEscelate
+# 2 - lightBoardDescelate
+# 3 - bpm
+# 4 - glitter
+# 5 - confetti
+# 6 - juggle
+# 7 - sinelon
+# 8 - paint
+# 9 - running green
+# 10 - running red
+# 11 - red
+#bpm: 120
+offset: 1.0
+
+0:
+ button1: algo.wav
+
+ action: play
+
+0.01: e9,t100,cgreen
+0.1: e1,t1400,cblue
+10: e12,t100,cpurple
+16: e12,t100,cred
+21.5: e2,t100,r0,g0,b139
+33: e1,t70,r0,g0,b205
+39: e2,t100,r0,g0,b128
+47: e1,t70,r0,g0,b205
+49: e1,t60,cblue
+55: e5
+68: e8,cred
+69: e8,cblue
+69.5: e8,cred
+70.2: e8,cblue
+73: e10,t100,cred
+75: e11,t100,cred
+76: e0,t100,cblue

@@ -1,0 +1,48 @@
+# time: parameter
+# example 
+# step1: ef10  -> when pressing on step1 run effect 10 
+# 3.5: ef3   ->  in time 3.5 seconds run effect 3
+#
+# ef,effect_number,turn_on,time,reg,green,blue
+# ef5,1,100,255,0,0
+#
+# 0 (idle) -  lightsBeat 
+# 1 - lightBoardEscelate
+# 2 - lightBoardDescelate
+# 3 - bpm
+# 4 - glitter
+# 5 - confetti
+# 6 - juggle
+# 7 - sinelon
+
+0:
+ button1: grav1.mp3
+
+
+#.1: play
+#1: ef1
+#3: ef2
+#5: ef3
+#7: ef4
+#9: ef5
+#11: ef6
+#13: ef7
+
+1: ef0,o1,t10,r255,g0,b0
+2: ef0,o1,t10,r0,g0,b255
+3: ef0,o1,t10,r0,g255,b0
+#4: ef0,o1,t10,r255,g0,b0
+#5: ef0,o1,t10,r0,g0,b255
+#6: ef0,o1,t10,r0,g255,b0
+#7: ef0,o1,t10,r255,g0,b0
+#8: ef0,o1,t10,r0,g0,b255
+#9: ef0,o1,t10,r0,g255,b0
+#10: ef0,o1,t10,r255,g0,b0
+#11: ef0,o1,t10,r0,g0,b255
+#12: ef0,o1,t10,r0,g255,b0
+4: end
+
+
+
+
+
