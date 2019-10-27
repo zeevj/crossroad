@@ -4,11 +4,11 @@
 
 #define CLK_PIN 27 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {3,9,10, 11, 12, 13, 18}; //, 10, 11, 12, 13, 14, 15}; //data from each pressure amplifier
+byte DOUTS[] = {255, 255, 255, 26, 25, 33, 32}; // 33,25,26
 #define CHANNEL_COUNT sizeof(DOUTS) / sizeof(byte)
 long int results[CHANNEL_COUNT];
 
-#define NUM_LEDS 675
+#define NUM_LEDS 745
 #define DATA_PIN 5
 
 #define RUN_FOR_N_MILLISECONDS(N) for (uint32_t start = millis(); (millis() - start) < N;)
@@ -28,7 +28,7 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 TaskHandle_t Task3;
 
-const int bttonPin = 21;
+const int buttonPin = 21;
 
 Effects effect = Effects(leds, CHANNEL_COUNT);
 int effectNum = 0;
@@ -248,8 +248,26 @@ void Task1code(void *pvParameters)
 
   for (;;)
   {
-    bool isOn = digitalRead(21);
-    //Serial.println(isOn);
+    bool isOn = digitalRead(buttonPin);
+
+ /*   for (int i = CHANNEL_COUNT - 1; i > 0; i--)
+    {
+      if (DOUTS[i] != 255)
+      {
+        steps[i].stepDetected = digitalRead(DOUTS[i]);
+        if (steps[i].stepDetected)
+        {
+          Serial.print("bt");
+          Serial.println(i + 1);
+        }
+      }
+    }
+    */
+
+    //bool buttonOn = !steps[stepNum1].stepDetected;
+    //buttonOn = isOn;
+    //Serial.println(buttonOn);
+
     if (buttonPressed != isOn & !isOn)
     {
       unsigned long currentTime = millis();
@@ -263,23 +281,9 @@ void Task1code(void *pvParameters)
     buttonPressed = isOn;
 
     uint8_t data = 0;
-    bool didGottMsg = false;
-    if (xQueueReceive(queue_1, &data, (TickType_t)0) == pdPASS)
-    {
-      //digitalWrite(led, HIGH);
-      didGottMsg = true;
-      for (int i = 0; i < CHANNEL_COUNT; i++)
-      {
-        bool isStepOn = bitRead(data, i); //(i == counter); //
-        if (isStepOn && (millis() > steps[i].hideEffectUntilTime))
-        {
-          steps[i].hideEffectUntilTime = millis() + 500;
-          //Serial.print(" hideEffectUntilTime - ");
-          //Serial.println(steps[i].hideEffectUntilTime);
-        }
-      }
-      counter = (counter + 1) % 8;
-    }
+    //if (xQueueReceive(queue_1, &data, (TickType_t)0) == pdPASS)
+
+    counter = (counter + 1) % 8;
 
     String inData;
     int numberOfTokens = 0;
@@ -312,7 +316,7 @@ void Task1code(void *pvParameters)
         numberOfTokens = 0;
         for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
         {
-            leds[i] = CRGB::Black;
+          leds[i] = CRGB::Black;
         }
       }
       else
@@ -321,9 +325,15 @@ void Task1code(void *pvParameters)
       }
     }
 
-    if (!didGottMsg)
+    effect.runEffect(effectNum, &params);
+
+    for (int i = 0; i < CHANNEL_COUNT; i++)
     {
-      effect.runEffect(effectNum, &params);
+      bool isStepOn = steps[i].stepDetected; //bitRead(data, i); //(i == counter); //
+      if (isStepOn && (millis() > steps[i].hideEffectUntilTime))
+      {
+        steps[i].hideEffectUntilTime = millis() + 300;
+      }
     }
 
     if (millis() > (currentFrameTimeMs + frameTimeIntervalMs))
@@ -411,16 +421,18 @@ void startThreads()
       0          /* pin task to core 0 */
   );
 
-  xTaskCreatePinnedToCore(
-      Task2code, /* Task function. */
-      "Task2",   /* name of task. */
-      10000,     /* Stack size of task */
-      NULL,      /* parameter of the task */
-      1,         /* priority of the task */
-      &Task2,    /* Task handle to keep track of created task */
-      1          /* pin task to core 1 */
-  );
-
+  //
+  //
+  //xTaskCreatePinnedToCore(
+  //    Task2code, /* Task function. */
+  //    "Task2",   /* name of task. */
+  //    10000,     /* Stack size of task */
+  //    NULL,      /* parameter of the task */
+  //    1,         /* priority of the task */
+  //    &Task2,    /* Task handle to keep track of created task */
+  //    1          /* pin task to core 1 */
+  //);
+  //
   // xTaskCreatePinnedToCore(
   //     Task3code, /* Task function. */
   //     "Task3",   /* name of task. */
@@ -439,27 +451,26 @@ void initSteps()
 
   //69 136 244 355 479 617 670
   int num = 0;
-  steps[num].fromLed = 0;
-  steps[num].toLed = steps[num].fromLed + 53 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 68 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 83 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 97 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 111 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 124 -1;
-  num ++;
-  steps[num].fromLed = steps[num-1].toLed + 1;
-  steps[num].toLed = steps[num].fromLed + 139 -1;
-
+  steps[num].fromLed = 71;
+  steps[num].toLed = steps[num].fromLed + 53 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 68 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 83 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 97 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 111 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 124 - 1;
+  num++;
+  steps[num].fromLed = steps[num - 1].toLed + 1;
+  steps[num].toLed = steps[num].fromLed + 139 - 1;
 
   steps[0].ledIsntalClockWise = false;
   steps[1].ledIsntalClockWise = false;
@@ -470,7 +481,16 @@ void setup()
 {
   initSteps();
   effect.setSteps(steps, CHANNEL_COUNT);
-  pinMode(bttonPin, INPUT_PULLUP);
+  pinMode(buttonPin, INPUT_PULLUP);
+
+  for (int i = 0; i < CHANNEL_COUNT; i++)
+  {
+    if (DOUTS[i] != 255)
+    {
+      pinMode(DOUTS[i], INPUT);
+    }
+  }
+
   Serial.begin(115200);
   Serial.flush();
 

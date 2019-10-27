@@ -21,6 +21,7 @@ offset: -0.0
  button1: arbat.mp3
  action: play
 
+0.01: e9,t100,cgreen
 0.1: e7,t100,r0,g255,b100
 4.036320: e8,t1,cred
 4.523406: e8,t1,cblue
@@ -39,6 +40,8 @@ offset: -0.0
 10.813310: e8,t1,cblue
 11.295525: e8,t1,cblack
 11.772870: e3,t200,r255,g255,b255
+12: e10,t100,cred
+16: e11,t100,cred
 17: e0,t100,cred
 
 

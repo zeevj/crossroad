@@ -1,7 +1,7 @@
 #include <FastLED.h>
 #include "parameters.cpp"
 
-#define TOTAL_NUM_LEDS 675
+#define TOTAL_NUM_LEDS 745
 #define FRAMES_PER_SECOND 120
 #define MAX_BRIGHTNESS 100
 #define MIN_BRIGHTNESS 0
@@ -18,23 +18,33 @@ struct Step
     int stepsAvgValue;
     int stepsCounter;
     unsigned long hideEffectUntilTime = 0;
-    bool ledIsntalClockWise= true;
-    int getLedNumber(int num) {
-        if (ledIsntalClockWise) {
+    bool ledIsntalClockWise = true;
+
+    int getLedNumber(int num)
+    {
+        if (ledIsntalClockWise)
+        {
             return fromLed + num;
-        } else{
+        }
+        else
+        {
             return toLed - num;
-        }  
+        }
     }
 
-     int getLedInLedsArray(int num) {
-        if (ledIsntalClockWise) {
+    int getLedInLedsArray(int num)
+    {
+        if (ledIsntalClockWise)
+        {
             return num;
-        } else{
+        }
+        else
+        {
             return toLed + fromLed - num;
-        }  
+        }
     }
-    int getTotalLeds(){
+    int getTotalLeds()
+    {
         return toLed - fromLed;
     }
 };
@@ -57,10 +67,13 @@ private:
     int stepCountDown = stepNum - 1;
 
     int redStart = 0;
-    int redEnd = 34;
+    int redEnd = redStart + 34;
 
-    int greenStart = 35;
-    int greenEnd = 69;
+    int greenStart = redEnd + 1;
+    int greenEnd = greenStart + 34;
+
+    // 1 - red , 2 - running red , 3 - running green , 4 green
+    int playSign = 1;
 
 public:
     Effects(CRGB *_leds, int _stepNum)
@@ -113,25 +126,49 @@ public:
             paint(params);
             break;
         case 9:
-            redRun(params);
+            //3 - running green
+            playSign = 3;
             break;
         case 10:
-            green(params);
+            //2 - running red
+            playSign = 2;
             break;
         case 11:
-            snake(params);
+            // 1 - red
+            playSign = 1;
             break;
         default:
             lightsBeat(params);
             break;
         }
+        playSigns();
         addSteps();
+    }
+
+    void playSigns()
+    {
+        // 1 - red , 2 - running red , 3 - running green , 4 green
+        switch (playSign)
+        {
+        case 1:
+            red();
+            break;
+        case 2:
+            redRun();
+            break;
+        case 3:
+            greenRun();
+            break;
+        case 4:
+            green();
+            break;
+        }
     }
 
     void lightsBeat(Parameters *params)
     {
         float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
-        for (int i = 0; i < TOTAL_NUM_LEDS; i++)
+        for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
         {
             leds[i] = params->getColor();
         }
@@ -219,7 +256,7 @@ public:
         CRGBPalette16 palette = PartyColors_p;
         uint8_t beat = beatsin8(params->getInterval(), 64, 255);
 
-        for (int i = 0; i < TOTAL_NUM_LEDS; i++)
+        for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
         {
             leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
         }
@@ -227,15 +264,20 @@ public:
 
     void glitter(Parameters *params)
     {
-        for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
+        for (int i = greenEnd + 1; i < (TOTAL_NUM_LEDS); i++)
         {
             leds[i] = CRGB::Black;
         }
         if (random8() < chanceOfGlitter)
         {
-            for (int i = 0; i < (TOTAL_NUM_LEDS); i++)
+            for (int i = greenEnd + 1; i < (TOTAL_NUM_LEDS - 70); i++)
             {
-                leds[random16(TOTAL_NUM_LEDS)] += CRGB::White;
+                int position = random16(TOTAL_NUM_LEDS);
+                if (position <= greenEnd)
+                {
+                    position = position + greenEnd + 1;
+                }
+                leds[position] += CRGB::White;
             }
         }
     }
@@ -244,10 +286,14 @@ public:
     {
         // random colored speckles that blink in and fade smoothly
         fadeToBlackBy(leds, TOTAL_NUM_LEDS, 10);
-        for (int i = 0; i < (TOTAL_NUM_LEDS / 7); i++)
+        for (int i = greenEnd + 1; i < (TOTAL_NUM_LEDS / 7); i++)
         {
-            int pos = random16(TOTAL_NUM_LEDS);
-            leds[pos] += CHSV(gHue + random8(64 * i), 200, 255);
+            int position = random16(TOTAL_NUM_LEDS);
+            if (position <= greenEnd)
+            {
+                position = position + greenEnd + 1;
+            }
+            leds[position] += CHSV(gHue + random8(64 * i), 200, 255);
         }
     }
 
@@ -256,93 +302,140 @@ public:
         // eight colored dots, weaving in and out of sync with each other
         fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
         byte dothue = 0;
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < stepsSize; i++)
         {
-            leds[beatsin16(i + 7, 0, TOTAL_NUM_LEDS - 1)] |= CHSV(dothue, 200, 255);
+            int position = beatsin16(i + 7, 0, TOTAL_NUM_LEDS - 1);
+            if (position <= greenEnd)
+            {
+                position = position + greenEnd + 1;
+            }
+            leds[position] |= CHSV(dothue, 200, 255);
             dothue += 32;
         }
     }
 
     void sinelon(Parameters *params)
     {
-        for (int i = 0; i < stepNum; i++)
+        for (int i = 0; i < stepsSize; i++)
         {
             // a colored dot sweeping back and forth, with fading trails
             fadeToBlackBy(leds, TOTAL_NUM_LEDS, 20);
             int pos = beatsin16(params->getInterval(), steps[i].fromLed, steps[i].toLed);
+            if (pos <= greenEnd)
+            {
+                pos = greenEnd + 1;
+            }
             leds[pos] += CHSV(gHue, 255, 192);
         }
     }
 
     void paint(Parameters *params)
     {
-        for (int stepNum = 0; stepNum < stepsSize; stepNum++)
+        for (int stepNum = 0; stepNum < 7; stepNum++)
         {
             //hack: use interval param to select the step
             //int stepNum = min(params->getInterval(),(unsigned long)stepsSize) - 1;
             //int stepNum = 0;
             for (int i = steps[stepNum].fromLed; i < steps[stepNum].toLed; i++)
             {
-                leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
+                leds[i] = params->getColor();
+                //leds[i] = CRGB(params->getColor().r, params->getColor().g, params->getColor().b);
             }
         }
     }
 
-    void green(Parameters *params)
+    void green()
     {
-        for (int i = greenStart; i < greenEnd; i++)
+        for (int i = redStart; i <= redEnd; i++)
+        {
+            leds[i] = CRGB::Black;
+        }
+        for (int i = greenStart; i <= greenEnd; i++)
         {
             leds[i] = CRGB::Green;
         }
     }
 
-    void greenRun(Parameters *params)
+    void greenRun()
     {
         fadeToBlackBy(leds, 35, 20);
-        int pos = beatsin16(60, greenStart, greenEnd - 1);
+        int pos = beatsin16(60, greenStart, greenEnd);
+        if (pos > greenEnd)
+        {
+            pos = greenEnd;
+        }
+        else if (pos < greenStart)
+        {
+            pos = greenStart;
+        }
+
         leds[pos] += CRGB::Green;
     }
 
-    void red(Parameters *params)
+    void red()
     {
-        for (int i = redStart; i < redEnd; i++)
+        for (int i = redStart; i < redEnd + 1; i++)
         {
             leds[i] = CRGB::Red;
         }
+        for (int j = greenStart; j < greenEnd + 1; j++)
+        {
+            leds[j] = CRGB::Black;
+        }
     }
 
-    void redRun(Parameters *params)
+    void redRun()
     {
-        fadeToBlackBy(leds, 35, 20);
-        int pos = beatsin16(60, redStart, redEnd - 1);
-        leds[pos] += CRGB::Red;
+        /* fadeToBlackBy(leds, 35, 20);
+        int pos = beatsin16(60, redStart, redEnd);
+        if (pos >= redEnd){
+            pos = redStart;
+        }
+        leds[pos] += CRGB::Red; */
+
+        for (int i = redStart; i < redEnd; i++)
+        {
+            if (i == cntctn){
+                leds[i] = CRGB::Red;
+                leds[i-1] = CRGB::Red;
+                leds[i-2] = CRGB::Red;
+            }else
+            {
+                leds[i] = CRGB::Black;
+            }
+        }
+        cntctn = (cntctn + 1) % 35;
     }
 
-    int cntctn; 
+    int cntctn;
     void snake2(Parameters *params)
-    {   
-        
-        for( int i = steps[0].fromLed; i < steps[stepsSize-1].toLed; i++){
-            leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
+    {
+
+        for (int i = steps[0].fromLed; i < steps[stepsSize - 1].toLed; i++)
+        {
+            leds[i] = (i == cntctn) ? params->getColor() : CRGB::Black;
         }
         cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
     }
 
     void snake(Parameters *params)
-    {   
+    {
 
-        for( int i = 0; i < stepsSize; i++){
-            for (int j = steps[i].fromLed; j < steps[i].toLed; j++){
-                if (cntctn == steps[i].getLedInLedsArray(j) ) {
-                    leds[j] =  params->getColor();
-                } else {
-                    leds[j] =  CRGB::Black;
+        for (int i = 0; i < stepsSize; i++)
+        {
+            for (int j = steps[i].fromLed; j < steps[i].toLed; j++)
+            {
+                if (cntctn == steps[i].getLedInLedsArray(j))
+                {
+                    leds[j] = params->getColor();
+                }
+                else
+                {
+                    leds[j] = CRGB::Black;
                 }
             }
             //leds[i] = (i == cntctn) ? params->getColor(): CRGB::Black;
         }
         cntctn = (cntctn + 1) % TOTAL_NUM_LEDS;
     }
-
-   
 };

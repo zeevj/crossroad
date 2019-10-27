@@ -8,7 +8,7 @@ from colour import Color
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
-songs_yamls = ["goodbye_yellow_brkrd","test","chacarron","masa","artbat"] 
+songs_yamls = ["goodbye_yellow_brkrd","chacarron","masa","artbat","bj"]  #,"test"
 myserial.songs_yamls = songs_yamls
 
 
@@ -32,7 +32,7 @@ def parse(key, data):
     send_data = False
     effect = -1
     time = 100
-    red = 0
+    red = 255
     green = 0
     blue = 0
     turn_on = 1

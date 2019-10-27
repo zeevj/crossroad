@@ -14,28 +14,27 @@
 # 5 - confetti
 # 6 - juggle
 # 7 - sinelon
+# 8 - paint
+# 9 - running green
+# 10 - running red
+# 11 - red
 #bpm: 120
 offset: -0.0
 
 0:
  button1: chacarron2.mp3
- #step1: e10
- #step2: e10
- #step3: e10
- #step4: e11
- #step5: e11
- #step6: e11
- #step7: e11
+
  action: play
 
+0.01: e9,t100,cgreen
 0.09492: e8,t100,cred
 0.641841: e8,t100,cblue
-1.206842: e8,t100,cblack
-1.735683: e1,t100
-3.918847: e2,t500
-6.106532: e1,t500
-8.280656: e2,t500
-10.46834: e3,t500
+1.206842: e8,t100,cgreen
+1.735683: e8,t100,cred
+3.918847: e8,t500,cblue
+6.106532: e8,t500,cred
+8.280656: e8,t500,cblue
+10.46834: e8,t500,cred
 11.562182: e8,t500,cblack
 12.651504: e8,t500,cblue
 13.736306: e8,t500,cblack
@@ -53,11 +52,12 @@ offset: -0.0
 20.82368: e8,t500,cblue
 21.370601: e8,t500,cred
 21.908482: e8,t500,cblue
+22: e10,t100,cred
 22.450883: e8,t500,cred
 23.006844: e8,t500,cgreen
 23.553765: e4,t500,cblack
+24: e11,t100,cred
 25: e0,t100,cblue
-
 
 
 

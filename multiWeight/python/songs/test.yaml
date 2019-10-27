@@ -7,13 +7,17 @@
 # ef5,1,100,255,0,0
 #
 # 0 (idle) -  lightsBeat 
-# 1 - lightBoardEscelate
-# 2 - lightBoardDescelate
-# 3 - bpm
+# 1 - lightBoardEscelate c
+# 2 - lightBoardDescelate c
+# 3 - bpm 
 # 4 - glitter
 # 5 - confetti
 # 6 - juggle
-# 7 - sinelon
+# 7 - sinelon c
+# 8 - paint c
+# 9 - running green
+# 10 - running red
+# 11 - red
 #bpm: 120
 offset: -0.0
 
@@ -21,7 +25,9 @@ offset: -0.0
  button1: chacarron2.mp3
  action: play
 
-0.1: e1,t100,cred
-2: e0,t100,r128,g0,b128
-6: e3,t100,r128,g0,b128
+1: e10
+8: e0,t100,cblue
+
+
+
 
