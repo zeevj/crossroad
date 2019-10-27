@@ -24,9 +24,14 @@ offset: -0.0
 0:
  button1: chacarron2.mp3
  action: play
+0.1: e0,t100,cred
+3: e0,t100,cred
 
-1: e10
-8: e0,t100,cblue
+
+#0.1: e1,t2000,cred
+#10: e10
+#13: e11
+#14: e0,t100,cblue
 
 
 

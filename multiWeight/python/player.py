@@ -8,9 +8,10 @@ from colour import Color
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
-songs_yamls = ["goodbye_yellow_brkrd","chacarron","masa","artbat","bj"]  #,"test"
+songs_yamls = ["goodbye_yellow_brkrd","chacarron","bj","masa","around_the_world","artbat"]
+#songs_yamls = ["around_the_world"]
+#songs_yamls = ["bj"]
 myserial.songs_yamls = songs_yamls
-
 
 
 thread_read_from_port = None

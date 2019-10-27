@@ -75,6 +75,9 @@ private:
 
     // 1 - red , 2 - running red , 3 - running green , 4 green
     int playSign = 1;
+    int cntctn = 0;
+
+    bool turnOnStepsDetectionLights = true;
 
 public:
     Effects(CRGB *_leds, int _stepNum)
@@ -100,7 +103,8 @@ public:
         switch (e)
         {
         case 0:
-            lightsBeat(params);
+            params->setInterval(1000 / 60);
+            lightsBeat1(params);
             break;
         case 1:
             lightBoardEscelate(params);
@@ -138,8 +142,22 @@ public:
             // 1 - red
             playSign = 1;
             break;
-        default:
-            lightsBeat(params);
+        case 12:
+            beat10FPS(params);
+            break;
+        case 20:
+            params->setInterval(1000 / 60);
+            lightsBeat2(params);
+            break;
+        case 30:
+            params->setInterval(1000 / 60);
+            lightsBeat3(params);
+            break;
+        case 99:
+            turnOnStepsDetectionLights = false;
+            break;
+        case 100:
+            turnOnStepsDetectionLights = true;
             break;
         }
         playSigns();
@@ -166,7 +184,7 @@ public:
         }
     }
 
-    void lightsBeat(Parameters *params)
+    void beat10FPS(Parameters *params)
     {
         float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
         for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
@@ -193,16 +211,63 @@ public:
         params->setCurrentTime(millis());
     }
 
+    void lightsBeat1(Parameters *params)
+    {
+        //light wave
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
+        int maxLight = 50;
+        //int val = sin(numFromZeroToOne / 35.0) * maxLight + (255 - maxLight);
+        for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
+        {
+            int val = sin(numFromZeroToOne / 35.0 + float(i) / 140.0) * maxLight + (255 - maxLight);
+            leds[i] = params->getColor();
+            leds[i].fadeLightBy(min(55 + val, 255));
+        }
+        params->setCurrentTime(millis());
+    }
+
+    void lightsBeat2(Parameters *params)
+    {
+        //dark wave
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
+        int maxLight = 50;
+        for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
+        {
+            int val = sin(numFromZeroToOne / 35.0 + float(i) / 140.0) * maxLight + (255 - maxLight);
+            leds[i] = params->getColor();
+            leds[i].fadeLightBy(val);
+        }
+        params->setCurrentTime(millis());
+    }
+
+    void lightsBeat3(Parameters *params)
+    {
+        //pulse wave
+        float numFromZeroToOne = float(params->getCurrentTime() - params->getStartTime()) / float(params->getInterval());
+        int maxLight = 50;
+        int val = sin(numFromZeroToOne / 35.0) * maxLight + (255 - maxLight);
+        for (int i = greenEnd + 1; i < TOTAL_NUM_LEDS; i++)
+        {
+
+            leds[i] = params->getColor();
+            leds[i].fadeLightBy(val);
+        }
+        params->setCurrentTime(millis());
+    }
+
     void addSteps()
     {
-        uint8_t step;
-        for (int i = 0; i < stepNum; i++)
+        if (turnOnStepsDetectionLights)
         {
-            if (millis() < steps[i].hideEffectUntilTime )
+            uint8_t step;
+            for (int i = 0; i < stepNum; i++)
             {
-                for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
+                if (millis() < steps[i].hideEffectUntilTime)
                 {
-                    leds[led] = CRGB::Green;
+                    for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
+                    {
+                        leds[led] = CRGB::White;
+                    }
                 }
             }
         }
@@ -347,19 +412,19 @@ public:
 
     void green()
     {
-        for (int i = redStart; i <= redEnd; i++)
+        for (int i = redStart; i < redEnd + 1; i++)
         {
             leds[i] = CRGB::Black;
         }
-        for (int i = greenStart; i <= greenEnd; i++)
+        for (int j = greenStart; j < greenEnd + 1; j++)
         {
-            leds[i] = CRGB::Green;
+            leds[j] = CRGB::Green;
         }
     }
 
     void greenRun()
     {
-        fadeToBlackBy(leds, 35, 20);
+        fadeToBlackBy(leds, 34, 20);
         int pos = beatsin16(60, greenStart, greenEnd);
         if (pos > greenEnd)
         {
@@ -387,28 +452,20 @@ public:
 
     void redRun()
     {
-        /* fadeToBlackBy(leds, 35, 20);
-        int pos = beatsin16(60, redStart, redEnd);
-        if (pos >= redEnd){
-            pos = redStart;
-        }
-        leds[pos] += CRGB::Red; */
-
         for (int i = redStart; i < redEnd; i++)
         {
-            if (i == cntctn){
+            if (i == cntctn)
+            {
                 leds[i] = CRGB::Red;
-                leds[i-1] = CRGB::Red;
-                leds[i-2] = CRGB::Red;
-            }else
+            }
+            else
             {
                 leds[i] = CRGB::Black;
             }
         }
-        cntctn = (cntctn + 1) % 35;
+        cntctn = (cntctn + 1) % 34;
     }
 
-    int cntctn;
     void snake2(Parameters *params)
     {
 

@@ -153,44 +153,6 @@ void printBorders(int i)
   Serial.println(steps[i].lowThreshold + steps[i].histeressis);
 }
 
-void renderLeds(HX711MULTI *scales)
-{
-  for (int i = 0; i < scales->get_count(); ++i)
-  {
-    if (steps[i].stepDetected)
-    {
-      CRGB cl;
-      int stp = steps[i].stepsCounter % stepModes;
-
-      switch (stp)
-      {
-      case 0:
-        cl = CRGB::Red;
-        break;
-      case 1:
-        cl = CRGB::Green;
-        break;
-      case 2:
-        cl = CRGB::Blue;
-        break;
-      }
-
-      for (int j = steps[i].fromLed; j < steps[i].toLed; j++)
-      {
-        leds[j] = cl;
-      }
-    }
-    else
-    {
-      for (int j = steps[i].fromLed; j < steps[i].toLed; j++)
-      {
-        leds[j] = CRGB::Black;
-      }
-    }
-  }
-  FastLED.show();
-}
-
 const uint maxTokens = 10;
 
 String tokens[maxTokens];
@@ -250,6 +212,7 @@ void Task1code(void *pvParameters)
   {
     bool isOn = digitalRead(buttonPin);
 
+/*
     for (int i = CHANNEL_COUNT - 1; i > 0; i--)
     {
       if (DOUTS[i] != 255)
@@ -257,12 +220,10 @@ void Task1code(void *pvParameters)
         steps[i].stepDetected = digitalRead(DOUTS[i]);
       }
     }
+    */
 
-    //bool buttonOn = !steps[stepNum1].stepDetected;
-    //buttonOn = isOn;
-    //Serial.println(buttonOn);
-
-    if ((buttonPressed != isOn & !isOn) || (steps[CHANNEL_COUNT - 1].stepDetected && !steps[CHANNEL_COUNT - 1].pstepDetected))
+    //if ((buttonPressed != isOn & !isOn) || (steps[CHANNEL_COUNT - 1].stepDetected && !steps[CHANNEL_COUNT - 1].pstepDetected))
+    if (buttonPressed != isOn & !isOn)
     {
       unsigned long currentTime = millis();
       if (currentTime > buttonPressIgnoreTillTime)
@@ -276,8 +237,7 @@ void Task1code(void *pvParameters)
 
     uint8_t data = 0;
     //if (xQueueReceive(queue_1, &data, (TickType_t)0) == pdPASS)
-
-    counter = (counter + 1) % 8;
+    //counter = (counter + 1) % 8;
 
     String inData;
     int numberOfTokens = 0;
@@ -301,9 +261,9 @@ void Task1code(void *pvParameters)
       {
         tokens[numberOfTokens] = inData;
         tokens[numberOfTokens].replace(" ", "");
-        Serial.print("got message with: ");
-        Serial.print(numberOfTokens);
-        Serial.println(" tokens");
+        //Serial.print("got message with: ");
+        //Serial.print(numberOfTokens);
+        //Serial.println(" tokens");
 
         processTokens(numberOfTokens, &params);
         inData = ""; // Clear recieved buffer
@@ -326,7 +286,7 @@ void Task1code(void *pvParameters)
       bool isStepOn = steps[i].stepDetected; //bitRead(data, i); //(i == counter); //
       if (isStepOn && (millis() > steps[i].hideEffectUntilTime))
       {
-        steps[i].hideEffectUntilTime = millis() + 700;
+        steps[i].hideEffectUntilTime = millis() + 400;
       }
     }
 
@@ -337,7 +297,7 @@ void Task1code(void *pvParameters)
       digitalWrite(led, LOW);
     }
 
-    for (int i = CHANNEL_COUNT - 1; i > 0; i--)
+    for (int i = CHANNEL_COUNT - 1; i >= 0; i--)
     {
       steps[i].pstepDetected = steps[i].stepDetected;
     }
