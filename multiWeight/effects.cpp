@@ -14,6 +14,7 @@ struct Step
     int lowThreshold = -4000;
     int histeressis = 2000;
     bool stepDetected;
+    bool pstepDetected;
     int stepsValue;
     int stepsAvgValue;
     int stepsCounter;
@@ -197,11 +198,11 @@ public:
         uint8_t step;
         for (int i = 0; i < stepNum; i++)
         {
-            if (steps[i].hideEffectUntilTime > millis())
+            if (millis() < steps[i].hideEffectUntilTime )
             {
                 for (int led = steps[i].fromLed; led < steps[i].toLed; led++)
                 {
-                    leds[led] = CRGB::White;
+                    leds[led] = CRGB::Green;
                 }
             }
         }

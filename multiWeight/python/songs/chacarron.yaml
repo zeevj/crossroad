@@ -52,12 +52,12 @@ offset: -0.0
 20.82368: e8,t500,cblue
 21.370601: e8,t500,cred
 21.908482: e8,t500,cblue
-22: e10,t100,cred
 22.450883: e8,t500,cred
 23.006844: e8,t500,cgreen
 23.553765: e4,t500,cblack
-24: e11,t100,cred
-25: e0,t100,cblue
+24: e10,t100,cred
+25: e11,t100,cred
+26: e0,t100,cblue
 
 
 

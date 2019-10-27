@@ -4,7 +4,7 @@
 
 #define CLK_PIN 27 // clock pin to the load cell amp
 #define TARE_TIMEOUT_SECONDS 4
-byte DOUTS[] = {255, 255, 255, 26, 25, 33, 32}; // 33,25,26
+byte DOUTS[] = {255, 255, 255, 26, 25, 32, 35}; // 33,25,26
 #define CHANNEL_COUNT sizeof(DOUTS) / sizeof(byte)
 long int results[CHANNEL_COUNT];
 
@@ -250,25 +250,19 @@ void Task1code(void *pvParameters)
   {
     bool isOn = digitalRead(buttonPin);
 
- /*   for (int i = CHANNEL_COUNT - 1; i > 0; i--)
+    for (int i = CHANNEL_COUNT - 1; i > 0; i--)
     {
       if (DOUTS[i] != 255)
       {
         steps[i].stepDetected = digitalRead(DOUTS[i]);
-        if (steps[i].stepDetected)
-        {
-          Serial.print("bt");
-          Serial.println(i + 1);
-        }
       }
     }
-    */
 
     //bool buttonOn = !steps[stepNum1].stepDetected;
     //buttonOn = isOn;
     //Serial.println(buttonOn);
 
-    if (buttonPressed != isOn & !isOn)
+    if ((buttonPressed != isOn & !isOn) || (steps[CHANNEL_COUNT - 1].stepDetected && !steps[CHANNEL_COUNT - 1].pstepDetected))
     {
       unsigned long currentTime = millis();
       if (currentTime > buttonPressIgnoreTillTime)
@@ -332,7 +326,7 @@ void Task1code(void *pvParameters)
       bool isStepOn = steps[i].stepDetected; //bitRead(data, i); //(i == counter); //
       if (isStepOn && (millis() > steps[i].hideEffectUntilTime))
       {
-        steps[i].hideEffectUntilTime = millis() + 300;
+        steps[i].hideEffectUntilTime = millis() + 700;
       }
     }
 
@@ -341,6 +335,11 @@ void Task1code(void *pvParameters)
       currentFrameTimeMs = millis();
       FastLED.show();
       digitalWrite(led, LOW);
+    }
+
+    for (int i = CHANNEL_COUNT - 1; i > 0; i--)
+    {
+      steps[i].pstepDetected = steps[i].stepDetected;
     }
   }
 }
