@@ -1,6 +1,6 @@
 
 
-const int bttonPin = 21;
+const int buttonPin = 21;
 // variables will change:
 int buttonState = 0; // variable for reading the pushbutton status
 bool buttonPressed = false;
@@ -12,7 +12,7 @@ void setup()
 {
   Serial.begin(115200);
   Serial.flush();
-  pinMode(bttonPin, INPUT_PULLUP);
+  pinMode(buttonPin, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT); 
 }
 

@@ -26,6 +26,7 @@ offset: 0.0
 
  action: play
 
+0.01: e9,t100,cgreen
 0.1: e1,t500,cblue
 
 8.3: e1,t500,cred
@@ -79,3 +80,5 @@ offset: 0.0
 226.172667: e8,cyellow
 234.338625: e8,cpurple
 238.458168: e8,cred
+240: e10,t100,cred
+241: e11,t100,cred
