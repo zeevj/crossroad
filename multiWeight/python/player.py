@@ -8,8 +8,8 @@ from colour import Color
 import test_serial as myserial
 
 sounds = [pygame.mixer.Sound] * 8
-#songs_yamls = ["goodbye_yellow_brkrd","blockhead","bonobo","chacarron","masa","bj","around_the_world","artbat","witchraft","algo"]
-songs_yamls = ["algo"]
+songs_yamls = ["goodbye_yellow_brkrd","blockhead","bonobo","chacarron","masa","bj","around_the_world","artbat","witchraft","algo"]
+#songs_yamls = ["algo"]
 #songs_yamls = ["goodbye_yellow_brkrd"]
 myserial.songs_yamls = songs_yamls
 
